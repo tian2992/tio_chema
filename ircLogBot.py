@@ -17,7 +17,7 @@ the bot will reply:
 Run this script with two arguments, the channel name the bot should
 connect to, and file to log to, e.g.:
 
-  $ python ircLogBot.py test test.log
+  $ python ircLogBot.py pepito bot.cf
 
 will log channel #test to the file 'test.log'.
 """
@@ -31,6 +31,10 @@ from twisted.python import log
 # system imports
 import time, sys
 
+# for ultra simple handling of configuration files
+# http://www.voidspace.org.uk/python/configobj.html
+# License: http://opensource.org/licenses/BSD-3-Clause
+from configobj import ConfigObj
 
 class MessageLogger:
     """
@@ -52,8 +56,9 @@ class MessageLogger:
 
 class LogBot(irc.IRCClient):
     """A logging IRC bot."""
-    
-    nickname = "twistedbot"
+
+    def __init__(self, nickname):
+        self.nickname = nickname
     
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
@@ -126,12 +131,14 @@ class LogBotFactory(protocol.ClientFactory):
     A new protocol instance will be created each time we connect to the server.
     """
 
-    def __init__(self, channel, filename):
+    def __init__(self, channel, config):
         self.channel = channel
-        self.filename = filename
+        # Load the configuration file
+        self.config = config
+        self.filename = self.config['logFile']
 
     def buildProtocol(self, addr):
-        p = LogBot()
+        p = LogBot(self.config['nickname'])
         p.factory = self
         return p
 
@@ -147,12 +154,15 @@ class LogBotFactory(protocol.ClientFactory):
 if __name__ == '__main__':
     # initialize logging
     log.startLogging(sys.stdout)
+
+    # Load the configuration file
+    config = ConfigObj(sys.argv[2])
     
     # create factory protocol and application
-    f = LogBotFactory(sys.argv[1], sys.argv[2])
+    f = LogBotFactory(sys.argv[1], config)
 
     # connect factory to this host and port
-    reactor.connectTCP("irc.freenode.net", 6667, f)
+    reactor.connectTCP(config['ircServer'], config.as_int('ircPort'), f)
 
     # run bot
     reactor.run()
