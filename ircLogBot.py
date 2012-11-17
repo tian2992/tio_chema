@@ -15,7 +15,7 @@ the bot will reply:
   <logbot> foo: I am a log bot
 
 Run this script with two arguments, the channel name the bot should
-connect to, and file to log to, e.g.:
+connect to, and the configuration file, e.g.:
 
   $ python ircLogBot.py pepito bot.cf
 
@@ -31,10 +31,15 @@ from twisted.python import log
 # system imports
 import time, sys
 
-# for ultra simple handling of configuration files
+# For ultra simple handling of configuration files
 # http://www.voidspace.org.uk/python/configobj.html
 # License: http://opensource.org/licenses/BSD-3-Clause
 from configobj import ConfigObj
+
+# Yapsy A simple plugin system for Python applications
+# http://yapsy.sourceforge.net/
+# License: http://www.opensource.org/licenses/bsd-license.php
+from yapsy.PluginManager import PluginManager
 
 class MessageLogger:
     """
@@ -59,7 +64,25 @@ class LogBot(irc.IRCClient):
 
     def __init__(self, nickname):
         self.nickname = nickname
-    
+        self.pluginsInit() #Yay I have plugins :)
+
+    def pluginsInit(self):
+        # Build the manager
+        self.simplePluginManager = PluginManager()
+        # Tell it the default place(s) where to find plugins
+        self.simplePluginManager.setPluginPlaces(["plugins"])
+        # Load all plugins
+        self.simplePluginManager.collectPlugins()
+        # Create a list of the names of all the plugins
+        self.listOfPlugins = []
+        for pluginInfo in self.simplePluginManager.getAllPlugins():
+            self.listOfPlugins.append(pluginInfo.name)
+
+    def listPlugins(self):
+        print 'Plugins:'
+        for item in self.listOfPlugins:
+            print item
+
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
         self.logger = MessageLogger(open(self.factory.filename, "a"))
@@ -95,10 +118,38 @@ class LogBot(irc.IRCClient):
             return
 
         # Otherwise check to see if it is a message directed at me
-        if msg.startswith(self.nickname + ":"):
-            msg = "%s: I am a log bot" % user
-            self.msg(channel, msg)
-            self.logger.log("<%s> %s" % (self.nickname, msg))
+        # if msg.startswith(self.nickname + ":"):
+        if msg.startswith(self.nickname):
+            msg = self.parseMessage(msg, user)
+            if(msg):
+                self.msg(channel, msg)
+                self.logger.log("<%s> %s" % (self.nickname, msg))
+
+    def parseMessage(self, msg, user):
+        # Look for a plugin
+        # Split the msg in three strings
+        listOfWords = msg.split(' ',2)
+        # This is a possible command
+        command = listOfWords[1].lower()
+
+        # Check if the plugin exists
+        if command in self.listOfPlugins:
+            # Call the plugin
+            plugin = self.simplePluginManager.getPluginByName(command)
+            msg = plugin.plugin_object.execute(msg, user)
+            return msg
+
+        # Here we should pass the command to the -action- plugin
+        # plugin = self.simplePluginManager.getPluginByName("action")
+        #    msg = plugin.plugin_object.execute(msg, user)
+        #    return msg
+
+        # This is the default action
+        # I will replace this, with an empty return
+        # in order to avoid flood
+        # return
+        msg = "%s: I am a twisted log bot" % user
+        return msg
 
     def action(self, user, channel, msg):
         """This will get called when the bot sees someone do an action."""
@@ -140,6 +191,7 @@ class LogBotFactory(protocol.ClientFactory):
     def buildProtocol(self, addr):
         p = LogBot(self.config['nickname'])
         p.factory = self
+        p.listPlugins() # Useful for debugging
         return p
 
     def clientConnectionLost(self, connector, reason):
@@ -157,7 +209,7 @@ if __name__ == '__main__':
 
     # Load the configuration file
     config = ConfigObj(sys.argv[2])
-    
+
     # create factory protocol and application
     f = LogBotFactory(sys.argv[1], config)
 
