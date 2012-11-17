@@ -3,8 +3,15 @@
 from yapsy.IPlugin import IPlugin
 
 class Example(IPlugin):
+    # This constructor is optional
+    def __init__(self):
+        self.counter = 0
     # This is the default method called by the bot when we try to use
     # it from irc.  If the plugin is intended for internal use just
     # call return in this method.
     def execute(self, msg, user):
-        return "This is the example plugin"
+        self.counter += 1
+        if self.counter > 10:
+            self.counter = 0
+        msg = "This is the example plugin, counter " + str(self.counter)
+        return msg

@@ -78,6 +78,7 @@ class LogBot(irc.IRCClient):
         for pluginInfo in self.simplePluginManager.getAllPlugins():
             self.listOfPlugins.append(pluginInfo.name)
 
+    # Useful for debuggin
     def listPlugins(self):
         print 'Plugins:'
         for item in self.listOfPlugins:
@@ -191,7 +192,6 @@ class LogBotFactory(protocol.ClientFactory):
     def buildProtocol(self, addr):
         p = LogBot(self.config['nickname'])
         p.factory = self
-        p.listPlugins() # Useful for debugging
         return p
 
     def clientConnectionLost(self, connector, reason):
