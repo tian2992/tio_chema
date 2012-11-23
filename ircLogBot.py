@@ -58,6 +58,41 @@ class MessageLogger:
     def close(self):
         self.file.close()
 
+class IrcMsg(irc.IRCClient):
+    """An IRC message."""
+    def __init__(self, channel=None, msg=None, user=None):
+        if channel is None:
+            self.channel = ""
+        else:
+            self.channel = channel
+        if msg is None:
+            self.msg = ""
+        else:
+            self.msg = msg
+        if user is None:
+            self.user = ""
+        else:
+            self.user = user
+
+
+    def setChannel(self, channel):
+        self.channel = channel
+
+    def setMsg(self, msg):
+        self.msg = msg
+
+    def setUser(self, user):
+        self.user = user
+
+    def getChannel(self):
+        return self.channel
+
+    def getMsg(self):
+        return self.msg
+
+    def getUser(self):
+        return self.user
+
 
 class LogBot(irc.IRCClient):
     """A logging IRC bot."""
@@ -77,6 +112,10 @@ class LogBot(irc.IRCClient):
         self.listOfPlugins = []
         for pluginInfo in self.simplePluginManager.getAllPlugins():
             self.listOfPlugins.append(pluginInfo.name)
+        # Get the security plugin
+        plugin = self.simplePluginManager.getPluginByName("security")
+        self.securityPlugin = plugin.plugin_object
+
 
     # Useful for debuggin
     def listPlugins(self):
@@ -111,6 +150,8 @@ class LogBot(irc.IRCClient):
         """This will get called when the bot receives a message."""
         user = user.split('!', 1)[0]
         self.logger.log("<%s> %s" % (user, msg))
+
+        ircMsg = IrcMsg(channel,msg,user)
         
         # Check to see if they're sending me a private message
         if channel == self.nickname:
@@ -121,15 +162,24 @@ class LogBot(irc.IRCClient):
         # Otherwise check to see if it is a message directed at me
         # if msg.startswith(self.nickname + ":"):
         if msg.startswith(self.nickname):
-            msg = self.parseMessage(msg, user)
-            if(msg):
-                self.msg(channel, msg)
-                self.logger.log("<%s> %s" % (self.nickname, msg))
+            ircMsg = self.parseMessage(ircMsg)
+            if(ircMsg):
+                self.logger.log("<%s> %s" % (self.nickname, ircMsg.getMsg()))
+                self.msg(ircMsg.getChannel(), ircMsg.getMsg())
 
-    def parseMessage(self, msg, user):
+    def parseMessage(self, ircMsg):
+        # Check his role
+        userRole = self.securityPlugin.getRole(ircMsg.getUser())
+        # If the role is unknow
+        if not userRole:
+            # Checking with nickserv
+            self.msg("NickServ", "ACC " + ircMsg.getUser())
+        else:
+            print ircMsg.getUser() + " role is " + userRole
+
         # Look for a plugin
         # Split the msg in three strings
-        listOfWords = msg.split(' ',2)
+        listOfWords = ircMsg.getMsg().split(' ',2)
         # This is a possible command
         command = listOfWords[1].lower()
 
@@ -137,8 +187,8 @@ class LogBot(irc.IRCClient):
         if command in self.listOfPlugins:
             # Call the plugin
             plugin = self.simplePluginManager.getPluginByName(command)
-            msg = plugin.plugin_object.execute(msg, user)
-            return msg
+            ircMsg = plugin.plugin_object.execute(ircMsg, userRole)
+            return ircMsg
 
         # Here we should pass the command to the -action- plugin
         # plugin = self.simplePluginManager.getPluginByName("action")
@@ -149,8 +199,9 @@ class LogBot(irc.IRCClient):
         # I will replace this, with an empty return
         # in order to avoid flood
         # return
-        msg = "%s: I am a twisted log bot" % user
-        return msg
+        msg = "%s: I am a twisted log bot" % ircMsg.getUser()
+        ircMsg.setMsg(msg)
+        return ircMsg
 
     def action(self, user, channel, msg):
         """This will get called when the bot sees someone do an action."""
@@ -164,7 +215,77 @@ class LogBot(irc.IRCClient):
         old_nick = prefix.split('!')[0]
         new_nick = params[0]
         self.logger.log("%s is now known as %s" % (old_nick, new_nick))
+        self.securityPlugin.deleteRole(old_nick)
 
+    def irc_NOTICE(self, prefix, params):
+        """This will get called when the bot receives a notice."""
+        # Print all the notices
+        print "IRC Notice:"
+        print "Prefix: " + prefix
+        print params
+        print "IRC Notice end."
+        # Look for NickServ notices
+        prefixList = prefix.split('!')
+        if prefixList[0] == "NickServ" and prefixList[1] == "NickServ@services.":
+            paramsList = params[1].split()
+            if paramsList[1] == "ACC":
+                if paramsList[2] == "3":
+                    # Set up the role of user
+                    self.securityPlugin.setRole(paramsList[0], "know")
+                    print paramsList[0] + " is now authenticated"
+                else:
+                    self.securityPlugin.setRole(paramsList[0], "unknow")
+
+    def irc_PART(self, prefix, params):
+        """Called when an IRC user leaves the channel."""
+        nick = prefix.split('!')[0]
+        # new_nick = params[0]
+        # self.logger.log("%s is now known as %s" % (old_nick, new_nick))
+        self.securityPlugin.deleteRole(nick)
+        # Debug
+        print "irc_PART, prefix:"
+        print prefix
+        print "params:"
+        print params
+
+    def irc_QUIT(self, prefix, params):
+        """Called when an IRC user quits the network."""
+        nick = prefix.split('!')[0]
+        # new_nick = params[0]
+        # self.logger.log("%s is now known as %s" % (old_nick, new_nick))
+        self.securityPlugin.deleteRole(nick)
+        # Debug
+        print "irc_QUIT, prefix:"
+        print prefix
+        print "params:"
+        print params
+
+    def irc_JOIN(self, prefix, params):
+        """Called when an IRC user joins to the channel."""
+        nick = prefix.split('!')[0]
+        # new_nick = params[0]
+        # self.logger.log("%s is now known as %s" % (old_nick, new_nick))
+        # Checking with nickserv
+        self.msg("NickServ", "ACC " + nick)
+        # Debug
+        print "irc_JOIN, prefix:"
+        print prefix
+        print "params:"
+        print params
+
+    def irc_KICK(self, prefix, params):
+        """Called when an IRC user kicks other user."""
+        nick = prefix.split('!')[0]
+        kicked_nick = params[1]
+        channel = params[0]
+        comment = params[2]
+        self.logger.log("*** %s has kicked %s off channel %s : %s" % (nick, kicked_nick, channel, comment))
+        self.securityPlugin.deleteRole(nick)
+        # Debug
+        print "irc_KICK, prefix:"
+        print prefix
+        print "params:"
+        print params
 
     # For fun, override the method that determines how a nickname is changed on
     # collisions. The default method appends an underscore.

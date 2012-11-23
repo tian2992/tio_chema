@@ -1,0 +1,9 @@
+[Core]
+Name = security
+Module = security
+
+[Documentation]
+Author = Josue Abarca
+Version = 0.1
+Website = https://gitorious.org/tio_chema
+Description = Keeps track of the users status (logged or not)

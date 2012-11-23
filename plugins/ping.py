@@ -3,5 +3,7 @@
 from yapsy.IPlugin import IPlugin
 
 class PluginPing(IPlugin):
-    def execute(self, msg, user):
-        return "%s: pong" % user
+    def execute(self, ircMsg):
+        msg = "%s: pong" % ircMsg.getUser()
+        ircMsg.setMsg(msg)
+        return ircMsg
