@@ -2,7 +2,7 @@
 # by thomson_matt
 from yapsy.IPlugin import IPlugin
 
-class Example(IPlugin, userRole):
+class Example(IPlugin):
     # This constructor is optional
     def __init__(self):
         # Possible roles
@@ -13,7 +13,7 @@ class Example(IPlugin, userRole):
     # This is the default method called by the bot when we try to use
     # it from irc.  If the plugin is intended for internal use just
     # call return in this method.
-    def execute(self, ircMsg):
+    def execute(self, ircMsg, userRole):
         return
 
     def getRole(self, user):
