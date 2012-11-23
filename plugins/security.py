@@ -2,7 +2,7 @@
 # by thomson_matt
 from yapsy.IPlugin import IPlugin
 
-class Example(IPlugin):
+class Example(IPlugin, userRole):
     # This constructor is optional
     def __init__(self):
         # Possible roles
