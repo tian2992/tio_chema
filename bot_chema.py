@@ -93,7 +93,7 @@ class ChemaBotFactory(protocol.ClientFactory):
     self.filename = self.config['log_file']
 
   def buildProtocol(self, addr):
-    p = LogBot(self.config['nickname'])
+    p = ChemaBot(self.config['nickname'])
     p.factory = self
     return p
 
