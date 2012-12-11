@@ -1,0 +1,8 @@
+# Configuration file
+# Reference: http://www.voidspace.org.uk/python/configobj.html#the-config-file-format
+log_file = bot.log
+nickname = pepito
+irc_server = irc.freenode.net
+irc_port = 6667
+
+
