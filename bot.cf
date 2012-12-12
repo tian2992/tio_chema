@@ -3,5 +3,6 @@
 log_file = bot.log
 nickname = pepito
 channel = slgt-chat
-irc_server = irc.freenode.net
+#irc_server = irc.freenode.net
+irc_server = localhost
 irc_port = 6667
