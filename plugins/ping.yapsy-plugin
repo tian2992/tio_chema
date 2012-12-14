@@ -1,0 +1,9 @@
+[Core]
+Name = ping
+Module = ping
+
+[Documentation]
+Author = Josue Abarca  
+Version = 0.2	
+Website = http://jmaslibre.org
+Description = Both a working ping plugin and a demo of simple plugin features.

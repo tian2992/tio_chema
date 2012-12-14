@@ -7,6 +7,8 @@ from twisted.python import log
 
 from configobj import ConfigObj
 
+from ircmessage import IRCMessage
+
 class ChemaBot(irc.IRCClient):
   """The main IRC bot class.
 
@@ -16,7 +18,28 @@ class ChemaBot(irc.IRCClient):
 
   def __init__(self, nickname):
     self.nickname = nickname
+    self.pluginsInit()
+      
+  def pluginsInit(self):
+    self.simplePluginManager = PluginManager()
+    self.simplePluginManager.setPluginPlaces(["plugins"])
+    self.simplePluginManager.collectPlugins()
+    # Create a list of the names of all the plugins
+    # TODO: create a list of plugin triggers
+    self.listOfPlugins = {}
+    for pluginInfo in self.simplePluginManager.getAllPlugins():
+      #TODO: consider adding several entries for the different names of the plugin
+      self.listOfPlugins[pluginInfo.name](pluginInfo.plugin_object)
+    ## Get the security plugin
+    #plugin = self.simplePluginManager.getPluginByName("security")
+    #self.securityPlugin = plugin.plugin_object
 
+
+  # Useful for debuggin
+  def listPlugins(self):
+      print 'Plugins:'
+      for item in self.listOfPlugins:
+          print item
 
   def signedOn(self):
     """Called when bot has succesfully signed on to server."""
@@ -40,6 +63,8 @@ class ChemaBot(irc.IRCClient):
       msg: A string containing the message recieved.
 
     """
+    
+    message = IRCMessage(channel, msg, user)
 
     #TODO: add logging
     #print msg
@@ -48,7 +73,7 @@ class ChemaBot(irc.IRCClient):
 
     if msg.startswith(self.nickname):
       self.say(channel, "Hello "+ user)
-
+      
       #TODO: add nick trigger plugins
 
 
