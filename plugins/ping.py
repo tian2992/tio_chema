@@ -1,10 +1,11 @@
 from yapsy.IPlugin import IPlugin
-from ..ircmessage import IRCMessage
+from ircmessage import IRCMessage
 
 class PluginPing(IPlugin):
 
   # This constructor is optional
   def __init__(self):
+    self.threshold = 3
     self.counter = 0
     self.last_user = ""
 
@@ -17,7 +18,7 @@ class PluginPing(IPlugin):
       self.last_user = user
 
     m = IRCMessage()
-    if self.counter > 3:
+    if self.counter > self.threshold:
       #TODO: localize
       m.msg = "yarr, it's the {0} time you've called me!".format(self.counter)
     else:
