@@ -2,9 +2,9 @@
 import time, sys
 
 from twisted.words.protocols import irc
-from twisted.internet import reactor, protocol
+from twisted.internet import reactor, protocol, threads
 from twisted.python import log
-
+from yapsy.PluginManager import PluginManager
 from configobj import ConfigObj
 
 from ircmessage import IRCMessage
@@ -19,17 +19,17 @@ class ChemaBot(irc.IRCClient):
   def __init__(self, nickname):
     self.nickname = nickname
     self.pluginsInit()
-      
+
   def pluginsInit(self):
     self.simplePluginManager = PluginManager()
     self.simplePluginManager.setPluginPlaces(["plugins"])
     self.simplePluginManager.collectPlugins()
     # Create a list of the names of all the plugins
     # TODO: create a list of plugin triggers
-    self.listOfPlugins = {}
+    self.plugins = {}
     for pluginInfo in self.simplePluginManager.getAllPlugins():
       #TODO: consider adding several entries for the different names of the plugin
-      self.listOfPlugins[pluginInfo.name](pluginInfo.plugin_object)
+      self.plugins[pluginInfo.name] = pluginInfo.plugin_object
     ## Get the security plugin
     #plugin = self.simplePluginManager.getPluginByName("security")
     #self.securityPlugin = plugin.plugin_object
@@ -38,7 +38,7 @@ class ChemaBot(irc.IRCClient):
   # Useful for debuggin
   def listPlugins(self):
       print 'Plugins:'
-      for item in self.listOfPlugins:
+      for item in self.plugins:
           print item
 
   def signedOn(self):
@@ -48,6 +48,32 @@ class ChemaBot(irc.IRCClient):
   def joined(self, channel):
     """This will get called when the bot joins the channel."""
     pass
+
+  def emitMessage(self, message, channel = None):
+    """A function to abstract message emission."""
+    if channel:
+      self.say(channel, message)
+    else:
+      self.say(message.channel, message.render())
+
+  def _parseAndExecute(self, ircm):
+    """Recieves an IRCMessage, detects the command and triggers the appropiate plugin."""
+    ## Main Command trigger is commonly '!'
+    trigger = self.factory.main_trigger
+    if ircm.msg.startswith(trigger):
+      word_list = ircm.msg.split(' ')
+      command = word_list[0].lstrip(trigger)
+      #TODO Consider sending the split word list.
+      self._execute_command(command, ircm)
+    if ircm.msg.startswith(self.nickname):
+      pass
+
+
+  def _execute_command(self, command, message):
+    # FIXME
+    plugin = self.plugins[command]
+    d = threads.deferToThread(plugin.execute, message, None)
+    d.addCallback(self.emitMessage)
 
   def privmsg(self, user, channel, msg):
     """Gets called when the bot receives a message in a channel or via PM.
@@ -63,7 +89,7 @@ class ChemaBot(irc.IRCClient):
       msg: A string containing the message recieved.
 
     """
-    
+
     message = IRCMessage(channel, msg, user)
 
     #TODO: add logging
@@ -71,10 +97,13 @@ class ChemaBot(irc.IRCClient):
 
     #TODO: add channel trigger plugins
 
-    if msg.startswith(self.nickname):
+    #NOTE: just for demo should be removed eventually
+    if message.msg.startswith(self.nickname):
       self.say(channel, "Hello "+ user)
-      
-      #TODO: add nick trigger plugins
+
+    self._parseAndExecute(message)
+
+    #TODO: add nick trigger plugins
 
 
 class ChemaBotFactory(protocol.ClientFactory):
@@ -84,6 +113,7 @@ class ChemaBotFactory(protocol.ClientFactory):
     # TODO add multi channel support
     self.channel = "#"+self.config['channel']
     self.filename = self.config['log_file']
+    self.main_trigger = self.config['main_command_trigger']
 
   def buildProtocol(self, addr):
     p = ChemaBot(self.config['nickname'])

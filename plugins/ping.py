@@ -1,5 +1,5 @@
 from yapsy.IPlugin import IPlugin
-# from ..ircmessage import IRCMessage
+from ..ircmessage import IRCMessage
 
 class PluginPing(IPlugin):
 
@@ -10,8 +10,19 @@ class PluginPing(IPlugin):
 
   def execute(self, ircMsg, userRole):
     user = ircMsg.user
-    self.last_user = user
-    msg = "%s: pong" % user
-    ircMsg.message = msg
-    ircMsg.directed = True
-    return ircMsg
+    if user == self.last_user:
+      self.counter += 1
+    else:
+      self.counter = 0
+      self.last_user = user
+
+    m = IRCMessage()
+    if self.counter > 3:
+      #TODO: localize
+      m.msg = "yarr, it's the {0} time you've called me!".format(self.counter)
+    else:
+      m.msg = "pong"
+    m.channel = ircMsg.channel
+    m.user = user
+    m.directed = True
+    return m
