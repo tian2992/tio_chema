@@ -24,15 +24,11 @@ class ChemaBot(irc.IRCClient):
     self.simplePluginManager = PluginManager()
     self.simplePluginManager.setPluginPlaces(["plugins"])
     self.simplePluginManager.collectPlugins()
+    # TODO: create a list of localized ("_()") plugin triggers
     # Create a list of the names of all the plugins
-    # TODO: create a list of plugin triggers
     self.plugins = {}
     for pluginInfo in self.simplePluginManager.getAllPlugins():
-      #TODO: consider adding several entries for the different names of the plugin
       self.plugins[pluginInfo.name] = pluginInfo.plugin_object
-    ## Get the security plugin
-    #plugin = self.simplePluginManager.getPluginByName("security")
-    #self.securityPlugin = plugin.plugin_object
 
 
   # Useful for debuggin
@@ -63,14 +59,16 @@ class ChemaBot(irc.IRCClient):
     if ircm.msg.startswith(trigger):
       word_list = ircm.msg.split(' ')
       command = word_list[0].lstrip(trigger)
-      #TODO Consider sending the split word list.
+      ## TODO: Consider sending the split word list.
       self._execute_command(command, ircm)
+
+    ## TODO: add main_triggers to nickname
     if ircm.msg.startswith(self.nickname):
       pass
 
 
   def _execute_command(self, command, message):
-    # FIXME
+    ## TODO: add support for different, not threaded plugins
     plugin = self.plugins[command]
     d = threads.deferToThread(plugin.execute, message, None)
     d.addCallback(self.emitMessage)
@@ -95,15 +93,9 @@ class ChemaBot(irc.IRCClient):
     #TODO: add logging
     #print msg
 
-    #TODO: add channel trigger plugins
-
-    #NOTE: just for demo should be removed eventually
-    if message.msg.startswith(self.nickname):
-      self.say(channel, "Hello "+ user)
+    #TODO: add channel trigger plugins (user defined actions)
 
     self._parseAndExecute(message)
-
-    #TODO: add nick trigger plugins
 
 
 class ChemaBotFactory(protocol.ClientFactory):
