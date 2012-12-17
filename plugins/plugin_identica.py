@@ -1,6 +1,6 @@
 from yapsy.IPlugin import IPlugin
 from ircmessage import IRCMessage
-import polib
+import gettext
 
 class plugin_identica(IPlugin):
 
@@ -9,7 +9,12 @@ class plugin_identica(IPlugin):
     self.threshold = 3
     self.counter = 0
     self.last_user = ""
-    self.po = polib.pofile('../locale/es/es.po')
+    self.loc_dir = "../locale/"
+    self.trans = gettext.translation("IDENTICA", self.loc_dir)
+    _ = trans.ugettext
+
+    trans.install()
+
 
   def execute(self, ircMsg, userRole):
     user = ircMsg.user
@@ -20,7 +25,7 @@ class plugin_identica(IPlugin):
       self.last_user = user
 
     m = IRCMessage()
-    m.msg = po.msgSalida.format(self.counter)
+    m.msg = _("msgSalida").format(self.counter)
 
     m.channel = ircMsg.channel
     m.user = user
