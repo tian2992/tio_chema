@@ -10,6 +10,7 @@ Library depends
 
 * python-twisted
 * python-yapsy
+* python-tweepy
 
     bash devel_setup.sh
 

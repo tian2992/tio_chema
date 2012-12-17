@@ -8,3 +8,9 @@ domain "tiochema"
 #: IDENTICA
 msgid "msgSalida"
 msgstr "Al parecer {0} dijo"
+
+msgid "msgIdentiFail"
+msgstr "Fallo al loguear en la cuenta de identica"
+
+msgid "msgIdentiOk"
+msgstr "Se logueó exitósamente en identica"
