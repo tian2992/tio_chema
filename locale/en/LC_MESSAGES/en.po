@@ -1,0 +1,10 @@
+# translation of tiochema to Spanish
+# This file is distributed under the same license as the tiochema package.
+# Copyright: 2012 Wences Arana <aranax@debian.org.gt>
+#
+
+domain "tiochema"
+
+#: IDENTICA
+msgid "msgSalida"
+msgstr "Hi {0} "

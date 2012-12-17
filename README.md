@@ -6,6 +6,11 @@ tio_chema is a simple IRC bot, made with love by and for the [Guatemalan Free So
 Installation
 -----------
 
+Library depends
+
+* python-twisted
+* python-yapsy
+
     bash devel_setup.sh
 
 Usage

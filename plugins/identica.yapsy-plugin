@@ -1,0 +1,9 @@
+[Core]
+Name = identica
+Module = identica
+
+[Documentation]
+Author = Wences Arana
+Version = 0.1
+Website = http://identi.ca/aranax
+Description = Identica plugin
