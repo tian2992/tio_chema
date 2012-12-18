@@ -5,6 +5,7 @@ from twisted.words.protocols import irc
 from twisted.internet import reactor, protocol, threads
 from twisted.python import log
 from yapsy.PluginManager import PluginManager
+from yapsy.ConfigurablePluginManager import ConfigurablePluginManager
 from configobj import ConfigObj
 
 from ircmessage import IRCMessage

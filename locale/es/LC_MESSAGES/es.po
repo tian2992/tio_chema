@@ -9,8 +9,17 @@ domain "tiochema"
 msgid "msgSalida"
 msgstr "Al parecer {0} dijo"
 
+msgid "msgIdentiPost"
+msgstr "Al parecer {0} dijo esto en identica {1}"
+
 msgid "msgIdentiFail"
 msgstr "Fallo al loguear en la cuenta de identica"
 
 msgid "msgIdentiOk"
 msgstr "Se logueó exitósamente en identica"
+
+msgid "msgIdentEn"
+msgstr "Plugin de identica activado"
+
+msgid "msgIdentDis"
+msgstr "Plugin de identica desactivado"
