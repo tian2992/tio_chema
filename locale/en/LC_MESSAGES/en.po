@@ -8,3 +8,6 @@ domain "tiochema"
 #: IDENTICA
 msgid "msgSalida"
 msgstr "Hi {0} "
+
+msgid "msgIdentiPost"
+msgstr "the bastard of {0} sends this message {1}"

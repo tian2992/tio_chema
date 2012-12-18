@@ -13,8 +13,8 @@ class identica(IPlugin):
     self.counter = 0
     self.last_user = ""
     self.host = 'identi.ca'
-    self.api_root = '/api'
-    self.without_aut()
+    self.api_root = '/api/'
+    self.oauth_root = self.api_root + 'oauth/'
 
   def execute(self, ircMsg, userRole):
     user = ircMsg.user
@@ -25,16 +25,19 @@ class identica(IPlugin):
       self.last_user = user
 
     m = IRCMessage()
-    self.api.update_status("Probando desde chema2 esto: " + self.user )
-
-#    m.msg = _("msgSalida").format(self.counter)
-
+    word_list = ircMsg.msg.split(' ')
+    post = word_list[1]
+    m.msg = _("msgIdentiPost").format(user, post)
+    self.oauth()
+    self.api = tweepy.API(self.auth, host = self.host, api_root = self.api_root)
+    self.api.update_status(post[:140])
+    
     m.channel = ircMsg.channel
     m.user = user
     m.directed = True
     return m
 
-  def with_auth(self):
+  def auth(self):
     self.username = ""
     self.password = ""
     self.auth = tweepy.auth.BasicAuthHandler(self.username, self.password)
@@ -45,23 +48,16 @@ class identica(IPlugin):
     else:
       print _("msgIdentiOk")
 
-  def without_aut(self):
-    self.oauth_root = self.api_root + 'oauth/'
-    self.consumer_token = "d59d15c57b61cc37be4e4b6f112bac65e"
-    self.consumer_secret = "bf6e387fb19397d8b842c02a9234e422e"
+  def oauth(self):
+    self.consumer_token = "d59d15c57b61cc37be4e4b6f112bac65"
+    self.consumer_secret = "bf6e387fb19397d8b842c02a9234e422"
+    self.auth = tweepy.OAuthHandler(self.consumer_token, self.consumer_secret, 'oob')
+    self.auth.OAUTH_HOST = self.host 
+    self.auth.OAUTH_ROOT = self.oauth_root 
+    self.auth.secure = True 
+    self.access_key = "ff1e4c5f4101caad4abca87aed0d4982"
+    self.access_secret = "3ae4d77cc97fa6520fc94203e8de9fd7"
+    self.auth.set_access_token(self.access_key, self.access_secret)
 
-    try:
-      self.auth = tweepy.OAuthHandler(self.consumer_token, self.consumer_secret)
-      # self.auth.OAUTH_HOST = self.host
-      # self.auth.OAUTH_ROOT = self.oauth_root
-      # self.auth.secure = True  
-      redirect_url = self.auth.get_authorization_url()
-      print redirect_url    
-    except:
-      print _("msgToken")
-      print "x",sys.exc_info()[0]
-    
-    # req_key = self.auth.request_token.key
-    # req_secret = self.auth.request_token.secret
 
 
