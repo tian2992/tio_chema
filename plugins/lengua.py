@@ -7,7 +7,7 @@ def _(st):
 
     try:
       #TODO obtener lenguaje de archivo de configuracion
-      trans = gettext.translation('es', loc_dir)
+      trans = gettext.translation('en', loc_dir)
       __ = trans.ugettext
       trans.install()
       return __(st)

@@ -5,6 +5,7 @@ from ConfigParser import SafeConfigParser
 import tweepy
 from tweepy import OAuthHandler
 import sys
+import re
 
 class identica(IPlugin):
 
@@ -16,7 +17,7 @@ class identica(IPlugin):
         self.host = 'identi.ca'
         self.api_root = '/api/'
         self.oauth_root = self.api_root + 'oauth/'
-        self.options = ['pull','post']
+        self.local_name = 'identica'
     
         try:
             parser = SafeConfigParser()
@@ -30,24 +31,24 @@ class identica(IPlugin):
 
 
     def execute(self, ircMsg, userRole):
-        user = ircMsg.user
-        if user == self.last_user:
-            self.counter += 1
-        else:
-            self.counter = 0
-        self.last_user = user
 
-        arguments = ircMsg.msg
-        arguments = arguments.strip().rsplit('identica')[1].strip()
-        option = arguments
+        m = IRCMessage()
 
-        if option == 'post':
-            m = self.post(ircMsg)
-        elif option == 'pull':
-            pull(ircMsg)    
+        try:
+            msg = ' '.join(ircMsg.msg.split())
+            option = msg.rsplit('identica')[1].strip().split(' ')[0]
+
+            if option == 'post':
+                m = self.post(ircMsg)
+            elif option == 'pull':
+                m = self.pull(ircMsg)    
+        except:
+            print sys.exc_info()
+            m.msg =  _("msgIdentiFail")
+
         m.channel = ircMsg.channel
-        m.user = user
-        m.directed = True
+        m.user = ircMsg.user
+
         return m
 
     def auth(self):
@@ -70,11 +71,11 @@ class identica(IPlugin):
 
     def post(self, ircMsg):    
         user = ircMsg.user
-        message = ircMsg.msg
-        post = message.rsplit('identica')[1].rsplit('post')[1]
+        message = ' '.join(ircMsg.msg.split())
+
+        post = re.sub('^!identica post ', '', message)
         m = IRCMessage()
 
-        print post
         m.msg = _("msgIdentiPost").format(user, post)
 
         try:
@@ -83,8 +84,26 @@ class identica(IPlugin):
             #self.api.update_status(post[:140])
         except:
             m.msg("msgIdentiFail")
-        return m
-    
+            return m
+
+    def pull(self, ircMsg):    
+        user = ircMsg.user
+        message = ' '.join(ircMsg.msg.split())
+
+        userid = re.sub('^!identica pull ', '', message)
+        m = IRCMessage()
+
+        #m.msg = _("msgIdentiPost").format(user, post)
+
+        try:
+            self.oauth()
+            self.api = tweepy.API(self.auth, host = self.host, api_root = self.api_root)    
+            m.msg = self.api.get_status(userid).id
+            #self.api.update_status(post[:140])
+        except:
+            print sys.exc_info()            
+            m.msg("msgIdentiFail")
+            return m
     
     def activate(self):
         super(identica, self).activate()
