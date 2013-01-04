@@ -1,14 +1,15 @@
 #!/usr/bin/env python2
 import time, sys
+import logging
 
 from twisted.words.protocols import irc
 from twisted.internet import reactor, protocol, threads
 from twisted.python import log
 from yapsy.PluginManager import PluginManager
-from yapsy.ConfigurablePluginManager import ConfigurablePluginManager
 from configobj import ConfigObj
 
 from ircmessage import IRCMessage
+from plugins.baseactionplugin import BaseActionPlugin
 
 class ChemaBot(irc.IRCClient):
   """The main IRC bot class.
@@ -22,19 +23,28 @@ class ChemaBot(irc.IRCClient):
     self.pluginsInit()
 
   def pluginsInit(self):
-    self.simplePluginManager = PluginManager()
-    self.simplePluginManager.setPluginPlaces(["plugins"])
-    self.simplePluginManager.collectPlugins()
+
+    self.pm = PluginManager(
+      categories_filter = {
+        "BaseActions" : BaseActionPlugin,
+      },
+      directories_list=["plugins"],)
+
+    self.pm.collectPlugins()
+    for pluginInfo in self.pm.getAllPlugins():
+      self.pm.activatePluginByName(pluginInfo.name)
+
     # TODO: create a list of localized ("_()") plugin triggers
     # Create a list of the names of all the plugins
     self.plugins = {}
-    for pluginInfo in self.simplePluginManager.getAllPlugins():
+    # TODO: specify categories of plugins with each trigger http://yapsy.sourceforge.net/PluginManager.html
+    #for pluginInfo in self.pm.getAllPlugins():
+    for pluginInfo in self.pm.getPluginsOfCategory("BaseActions"):
       #TODO: turn into logger
       print(pluginInfo.name)
       self.plugins[pluginInfo.name] = pluginInfo.plugin_object
 
-
-  # Useful for debuggin
+  # Useful for debugging
   def listPlugins(self):
       print 'Plugins:'
       for item in self.plugins:
@@ -72,7 +82,12 @@ class ChemaBot(irc.IRCClient):
 
   def _execute_command(self, command, message):
     ## TODO: add support for different, not threaded plugins
-    plugin = self.plugins[command]
+    try:
+      plugin = self.plugins[command]
+    except KeyError:
+      ## TODO: Log missing plugin.
+      print("Command {0} missing".format(command))
+      return
     d = threads.deferToThread(plugin.execute, message, None)
     d.addCallback(self.emitMessage)
 
@@ -129,6 +144,8 @@ if __name__ == '__main__':
     config = ConfigObj(sys.argv[1])
     # create factory protocol and application
     bot_factory = ChemaBotFactory(config)
+    observer = log.PythonLoggingObserver()
+    observer.start()
     reactor.connectTCP(config['irc_server'],
                        config.as_int('irc_port'),
                        bot_factory)

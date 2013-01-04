@@ -1,13 +1,13 @@
-from yapsy.IPlugin import IPlugin
+from plugins.baseactionplugin import BaseActionPlugin
 from ircmessage import IRCMessage
 from plugins.lengua import _
+
 from ConfigParser import SafeConfigParser
 import tweepy
 from tweepy import OAuthHandler
-import sys
 import re
 
-class PluginIdentica(IPlugin):
+class PluginIdentica(BaseActionPlugin):
 
   def __init__(self):
     self.host = 'identi.ca'

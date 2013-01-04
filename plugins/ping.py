@@ -1,7 +1,7 @@
-from yapsy.IPlugin import IPlugin
+from plugins.baseactionplugin import BaseActionPlugin
 from ircmessage import IRCMessage
 
-class PluginPing(IPlugin):
+class PluginPing(BaseActionPlugin):
 
   # This constructor is optional
   def __init__(self):

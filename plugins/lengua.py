@@ -6,12 +6,11 @@ def _(st):
   loc_dir = "locale/"
 
   try:
-    #TODO obtener lenguaje de archivo de configuracion
+    #TODO get config-file lang
     trans = gettext.translation('en', loc_dir)
     __ = trans.ugettext
     trans.install()
     return __(st)
   except:
-    raise
-
-
+    #TODO: Log exception
+    return st
