@@ -1,0 +1,25 @@
+# translation of tiochema to Spanish
+# This file is distributed under the same license as the tiochema package.
+# Copyright: 2012 Wences Arana <aranax@debian.org.gt>
+#
+
+domain "tiochema"
+
+#: IDENTICA
+msgid "msgSalida"
+msgstr "Hi {0} "
+
+msgid "msgIdentiPost"
+msgstr "the bastard of {0} sends this message {1}"
+
+msgid "msgIdentiFail"
+msgstr "Fallo al loguear en la cuenta de identica"
+
+msgid "msgIdentiOk"
+msgstr "Se logueó exitósamente en identica"
+
+msgid "msgIdentEn"
+msgstr "Plugin de identica activado"
+
+msgid "msgIdentDis"
+msgstr "Plugin de identica desactivado"

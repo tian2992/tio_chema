@@ -5,6 +5,7 @@ from twisted.words.protocols import irc
 from twisted.internet import reactor, protocol, threads
 from twisted.python import log
 from yapsy.PluginManager import PluginManager
+from yapsy.ConfigurablePluginManager import ConfigurablePluginManager
 from configobj import ConfigObj
 
 from ircmessage import IRCMessage
@@ -28,6 +29,8 @@ class ChemaBot(irc.IRCClient):
     # Create a list of the names of all the plugins
     self.plugins = {}
     for pluginInfo in self.simplePluginManager.getAllPlugins():
+      #TODO: turn into logger
+      print(pluginInfo.name)
       self.plugins[pluginInfo.name] = pluginInfo.plugin_object
 
 
