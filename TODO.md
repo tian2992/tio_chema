@@ -4,6 +4,8 @@ TODO
 * Plugin trigger localization.
 * Making thread spawn optional.
 * User management.
+* Anti-flood technology.
+* User defined actions poll for deciding triggers (! vs @)
 
 Wishlist
 ========
