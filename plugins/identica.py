@@ -45,19 +45,6 @@ class PluginIdentica(BaseActionPlugin):
 
     return m
 
-  def auth(self):
-    self.username = ""
-    self.password = ""
-    self.auth = tweepy.auth.BasicAuthHandler(self.username, self.password)
-    self.api = tweepy.API(self.auth, self.host, self.api_root, secure = True)
-    self.api.verify_credentials()
-    if not self.api.verify_credentials():
-      import traceback
-      traceback.print_exc()
-      print _("msgIdentiFail")
-    else:
-      print _("msgIdentiOk")
-
   def oauth(self):
     self.auth = tweepy.OAuthHandler(self.consumer_token, self.consumer_secret, 'oob')
     self.auth.OAUTH_HOST = self.host

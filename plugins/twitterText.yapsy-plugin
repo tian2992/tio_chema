@@ -1,0 +1,16 @@
+[Core]
+Name = twitterText
+Module = twitterText
+
+[Documentation]
+Author = Sebastian Oliva
+Version = 0.1
+Website = http://sebastianoliva.com
+Description = Plugin for Twitter link detection
+
+[Auth]
+host = twitter.com
+consumer_token = a
+consumer_secret = a
+access_key = a
+access_secret = a

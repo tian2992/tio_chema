@@ -10,6 +10,7 @@ from configobj import ConfigObj
 
 from ircmessage import IRCMessage
 from plugins.baseactionplugin import BaseActionPlugin
+from plugins.texttriggerplugin import TextTriggerPlugin
 
 class ChemaBot(irc.IRCClient):
   """The main IRC bot class.
@@ -23,26 +24,32 @@ class ChemaBot(irc.IRCClient):
     self.pluginsInit()
 
   def pluginsInit(self):
-
+    logging.basicConfig(level=logging.DEBUG)
     self.pm = PluginManager(
       categories_filter = {
         "BaseActions" : BaseActionPlugin,
+        "TextActions" : TextTriggerPlugin
       },
       directories_list=["plugins"],)
 
     self.pm.collectPlugins()
     for pluginInfo in self.pm.getAllPlugins():
+      #TODO: turn into logger
+      print(pluginInfo.name)
       self.pm.activatePluginByName(pluginInfo.name)
 
     # TODO: create a list of localized ("_()") plugin triggers
-    # Create a list of the names of all the plugins
-    self.plugins = {}
+    # Create a dictionary of the names of all the plugins
+    self.action_plugins = {}
+    # List of the regexes and plugins
+    self.regex_plugins = []
     # TODO: specify categories of plugins with each trigger http://yapsy.sourceforge.net/PluginManager.html
-    #for pluginInfo in self.pm.getAllPlugins():
     for pluginInfo in self.pm.getPluginsOfCategory("BaseActions"):
-      #TODO: turn into logger
-      print(pluginInfo.name)
-      self.plugins[pluginInfo.name] = pluginInfo.plugin_object
+      self.action_plugins[pluginInfo.name] = pluginInfo.plugin_object
+
+    for pluginInfo in self.pm.getPluginsOfCategory("TextActions"):
+      self.regex_plugins.append((pluginInfo.plugin_object.trigger, pluginInfo.plugin_object))
+
 
   # Useful for debugging
   def listPlugins(self):
@@ -68,28 +75,35 @@ class ChemaBot(irc.IRCClient):
   def _parseAndExecute(self, ircm):
     """Recieves an IRCMessage, detects the command and triggers the appropiate plugin."""
     ## Main Command trigger is commonly '!'
+    message = ircm.msg
+    for (regex, plugin) in self.regex_plugins:
+      result_groups = regex.findall(message)
+
+      if result_groups:
+        ## Only takes the first of the matches.
+        result = result_groups[0]
+        d = threads.deferToThread(plugin.execute, ircm, None, result)
+        d.addCallback(self.emitMessage)
+
+
     trigger = self.factory.main_trigger
-    if ircm.msg.startswith(trigger):
-      word_list = ircm.msg.split(' ')
+    if message.startswith(trigger):
+      word_list = message.split(' ')
       command = word_list[0].lstrip(trigger)
       ## TODO: Consider sending the split word list.
-      self._execute_command(command, ircm)
+      try:
+        plugin = self.action_plugins[command]
+      except KeyError:
+        ## TODO: Log missing plugin.
+        print("Command {0} missing".format(command))
+        return
+      d = threads.deferToThread(plugin.execute, ircm, None)
+      d.addCallback(self.emitMessage)
 
     ## TODO: add main_triggers to nickname
     if ircm.msg.startswith(self.nickname):
       pass
 
-
-  def _execute_command(self, command, message):
-    ## TODO: add support for different, not threaded plugins
-    try:
-      plugin = self.plugins[command]
-    except KeyError:
-      ## TODO: Log missing plugin.
-      print("Command {0} missing".format(command))
-      return
-    d = threads.deferToThread(plugin.execute, message, None)
-    d.addCallback(self.emitMessage)
 
   def privmsg(self, user, channel, msg):
     """Gets called when the bot receives a message in a channel or via PM.
