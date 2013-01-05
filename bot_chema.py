@@ -28,7 +28,7 @@ class ChemaBot(irc.IRCClient):
     self.pm = PluginManager(
       categories_filter = {
         "BaseActions" : BaseActionPlugin,
-        "TextActions" : TextTriggerPlugin
+        "TextActions" : TextTriggerPlugin,
       },
       directories_list=["plugins"],)
 
@@ -68,9 +68,9 @@ class ChemaBot(irc.IRCClient):
   def emitMessage(self, message, channel = None):
     """A function to abstract message emission."""
     if channel:
-      self.say(channel, message)
+      self.say(channel, message.encode('utf-8'))
     else:
-      self.say(message.channel, message.render())
+      self.say(message.channel, message.render().encode('utf-8'))
 
   def _parseAndExecute(self, ircm):
     """Recieves an IRCMessage, detects the command and triggers the appropiate plugin."""

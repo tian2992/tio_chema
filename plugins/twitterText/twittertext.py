@@ -17,7 +17,7 @@ class TwitterTextPlugin(TextTriggerPlugin):
     m.channel = ircMsg.channel
 
     status = tweepy.api.get_status(regex_group[-1])
-    m.msg = "@{0}: {1}".format(regex_group[-2], status.text)
+    m.msg = u"@{0}: {1}".format(regex_group[-2], status.text)
 
     m.user = ircMsg.user
     return m
