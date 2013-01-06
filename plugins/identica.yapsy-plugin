@@ -4,7 +4,7 @@ Module = identica
 
 [Documentation]
 Author = Wences Arana
-Version = 0.1
+Version = 0.2
 Website = http://identi.ca/aranax
 Description = Identica plugin
 
