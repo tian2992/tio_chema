@@ -38,6 +38,7 @@ class PluginIdentica(BaseActionPlugin):
       elif option == 'pull':
         m = self.pull(ircMsg)
     except:
+      ## TODO: raise a different exception.
       m.msg =  _("msgIdentiFail")
 
     m.channel = ircMsg.channel
@@ -71,9 +72,14 @@ class PluginIdentica(BaseActionPlugin):
 
   def pull(self, ircMsg):
     user = ircMsg.user
-    message = ' '.join(ircMsg.msg.split())
+    message = ircMsg.msg
+    args = message.split() #self.split_args(ircMsg)
+    userid = args[2]
+    if len(args) > 3:
+      index = int(args[3])
+    else:
+      index = 0
 
-    userid = re.sub('^!identica pull ', '', message)
     m = IRCMessage()
 
     #m.msg = _("msgIdentiPost").format(user, post)
@@ -83,7 +89,7 @@ class PluginIdentica(BaseActionPlugin):
       self.api = tweepy.API(self.auth, host = self.host, api_root = self.api_root)
       timeline = self.api.user_timeline(userid)
       #TODO: add support to pull an specific index
-      m.msg = str(timeline[0].text)
+      m.msg = u"@{0}: {1}".format(userid, timeline[index].text)
     except:
       import traceback
       traceback.print_exc()

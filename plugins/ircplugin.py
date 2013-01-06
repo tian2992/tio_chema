@@ -6,7 +6,7 @@ class IRCPlugin(IPlugin):
     raise NotImplementedError
 
   def split_args(message):
-    return message.msg.strip().split(' ')
+    return message.msg.strip().split()
 
   def getTrigger(message):
     args_list = split_args(message)
