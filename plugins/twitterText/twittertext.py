@@ -12,16 +12,24 @@ class TwitterTextPlugin(TextTriggerPlugin):
       """((http|https)://(twitter.com|identi.ca)/(([A-Za-z0-9_]{1,15})/status|notice)/([\d]*))""",
       re.IGNORECASE)
 
-  def execute(self, ircMsg, userRole, regex_group):
-    m = IRCMessage()
-    m.channel = ircMsg.channel
+  def execute(self, ircMsg, userRole, regex_groups):
+    regex_group = regex_groups[0]
 
-    if regex_group[2] == "twitter.com":
+    api = self.createApi(regex_group[2])
+    return self.fetchAndFormatStatus(ircMsg, api, regex_group)
+
+  def createApi(self, host):
+    if host == "twitter.com":
       api = tweepy.API()
-    elif regex_group[2] == "identi.ca":
+    elif host == "identi.ca":
       api = tweepy.API(host = 'identi.ca', api_root = '/api/')
     else:
       raise Exception("No API defined for this handler.")
+    return api
+
+  def fetchAndFormatStatus(self, ircMsg, api, regex_group):
+    m = IRCMessage()
+    m.channel = ircMsg.channel
 
     status = api.get_status(regex_group[-1])
     if regex_group[-2]:

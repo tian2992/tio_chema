@@ -42,13 +42,13 @@ class ChemaBot(irc.IRCClient):
     # Create a dictionary of the names of all the plugins
     self.action_plugins = {}
     # List of the regexes and plugins
-    self.regex_plugins = []
+    self.text_trigger_plugins = []
     # TODO: specify categories of plugins with each trigger http://yapsy.sourceforge.net/PluginManager.html
     for pluginInfo in self.pm.getPluginsOfCategory("BaseActions"):
       self.action_plugins[pluginInfo.name] = pluginInfo.plugin_object
 
     for pluginInfo in self.pm.getPluginsOfCategory("TextActions"):
-      self.regex_plugins.append((pluginInfo.plugin_object.trigger, pluginInfo.plugin_object))
+      self.text_trigger_plugins.append((pluginInfo.plugin_object.trigger, pluginInfo.plugin_object))
 
 
   # Useful for debugging
@@ -76,12 +76,10 @@ class ChemaBot(irc.IRCClient):
     """Recieves an IRCMessage, detects the command and triggers the appropiate plugin."""
     ## Main Command trigger is commonly '!'
     message = ircm.msg
-    for (regex, plugin) in self.regex_plugins:
-      result_groups = regex.findall(message)
+    for (text_trigger, plugin) in self.text_trigger_plugins:
+      result = text_trigger.findall(message)
 
-      if result_groups:
-        ## Only takes the first of the matches.
-        result = result_groups[0]
+      if result:
         d = threads.deferToThread(plugin.execute, ircm, None, result)
         d.addCallback(self.emitMessage)
 
