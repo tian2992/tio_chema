@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-import time, sys
+import time, sys, re
 import logging
 
 from twisted.words.protocols import irc
@@ -73,23 +73,33 @@ class ChemaBot(irc.IRCClient):
 
   def _parseAndExecute(self, ircm):
     """Recieves an IRCMessage, detects the command and triggers the appropiate plugin."""
-    ## Main Command trigger is commonly '!'
+
     message = ircm.msg
     for (text_trigger, plugin) in self.text_trigger_plugins:
-      result = text_trigger.findall(message)
+      if isinstance(text_trigger, type(re.compile(''))):
+        result = text_trigger.findall(message)
+      #TODO: make a base class for complex triggers.
+      #TODO: specify the info sent to the trigger.
+      else:
+        #trigger.fire(message, *args, **kwargs)
+        result = text_trigger.fire(ircm)
 
       if result:
         d = threads.deferToThread(plugin.execute, ircm, None, result)
         d.addCallback(self.emitMessage)
 
-
+    ## Main Command trigger is commonly '!'
     trigger = self.factory.main_trigger
     if message.startswith(trigger) or message.startswith(self.nickname):
       word_list = message.split(' ')
       if message.startswith(trigger):
         command = word_list[0].lstrip(trigger)
       elif message.startswith(self.nickname):
-        command = word_list[1].strip()
+        try:
+          command = word_list[1].strip()
+        except IndexError:
+          logging.warning('Invalid call: "{0}"'.format(ircm.render()))
+          return
 
       ## TODO: Consider sending the split word list.
       try:

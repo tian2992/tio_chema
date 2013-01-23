@@ -35,6 +35,6 @@ class IRCMessage():
   def render(self):
     """Returns a user facing representation of the message"""
     if self.directed:
-      return "{0}: {1}".format(self.user, self.msg)
+      return u"{0}: {1}".format(unicode(self.user.decode('utf-8')), unicode(self.msg.decode('utf-8')))
     else:
       return self.msg
