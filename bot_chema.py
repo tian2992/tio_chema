@@ -67,7 +67,7 @@ class ChemaBot(irc.IRCClient):
   def emitMessage(self, message, channel = None):
     """A function to abstract message emission."""
     if channel:
-      self.say(channel, message.encode('utf-8'))
+      self.say(channel, message.render().encode('utf-8'))
     else:
       self.say(message.channel, message.render().encode('utf-8'))
 

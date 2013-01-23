@@ -37,4 +37,4 @@ class IRCMessage():
     if self.directed:
       return u"{0}: {1}".format(unicode(self.user.decode('utf-8')), unicode(self.msg.decode('utf-8')))
     else:
-      return self.msg
+      return unicode(self.msg)
