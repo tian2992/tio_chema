@@ -1,0 +1,9 @@
+[Core]
+Name = sed
+Module = sed
+
+[Documentation]
+Author = Sebastian Oliva
+Version = 0.1
+Website = http://sebastianoliva.com
+Description = A sed-like substitutor hack.
