@@ -34,9 +34,8 @@ class ChemaBot(irc.IRCClient):
 
     self.pm.collectPlugins()
     for pluginInfo in self.pm.getAllPlugins():
-      #TODO: turn into logger
-      print(pluginInfo.name)
       self.pm.activatePluginByName(pluginInfo.name)
+      logging.info("Plugin {0} activated".format(pluginInfo.name))
 
     # TODO: create a list of localized ("_()") plugin triggers
     # Create a dictionary of the names of all the plugins
@@ -85,22 +84,25 @@ class ChemaBot(irc.IRCClient):
 
 
     trigger = self.factory.main_trigger
-    if message.startswith(trigger):
+    if message.startswith(trigger) or message.startswith(self.nickname):
       word_list = message.split(' ')
-      command = word_list[0].lstrip(trigger)
+      if message.startswith(trigger):
+        command = word_list[0].lstrip(trigger)
+      elif message.startswith(self.nickname):
+        command = word_list[1].strip()
+
       ## TODO: Consider sending the split word list.
       try:
         plugin = self.action_plugins[command]
       except KeyError:
-        ## TODO: Log missing plugin.
-        print("Command {0} missing".format(command))
+        logging.warning("Command {0} missing".format(command))
         return
       d = threads.deferToThread(plugin.execute, ircm, None)
       d.addCallback(self.emitMessage)
 
     ## TODO: add main_triggers to nickname
-    if ircm.msg.startswith(self.nickname):
-      pass
+    #if ircm.msg.startswith(self.nickname):
+    #  pass
 
 
   def privmsg(self, user, channel, msg):

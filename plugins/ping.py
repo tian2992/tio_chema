@@ -1,5 +1,6 @@
 from plugins.baseactionplugin import BaseActionPlugin
 from ircmessage import IRCMessage
+import logging
 
 class PluginPing(BaseActionPlugin):
 
@@ -26,4 +27,5 @@ class PluginPing(BaseActionPlugin):
     m.channel = ircMsg.channel
     m.user = user
     m.directed = True
+    logging.debug("User: {0} pinged".format(user))
     return m
