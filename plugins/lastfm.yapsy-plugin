@@ -1,0 +1,12 @@
+[Core]
+Name = lastfm
+Module = lastfm
+
+[Documentation]
+Author = Sebastian Oliva
+Version = 0.1
+Website = http://sebastianoliva.com
+Description = A last.fm client.
+
+[Auth]
+key = 96f36d9a90987604e750d8fb4cc9a38e
