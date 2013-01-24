@@ -26,11 +26,19 @@ class PluginLastfm(BaseActionPlugin):
     user_s = ircMsg.msg.split(' ')[1]
     logging.info("Getting last.fm user {0}".format(user_s))
     user = self.last.get_user(user_s)
-    recent_tracks = user.get_recent_tracks()
-    #for i in recent_tracks:
-    #  print i.track.title + i.track.artist.name
 
-    last_track = recent_tracks[0].track
+    try:
+      recent_tracks = user.get_recent_tracks()
+    except:
+      #TODO: Localize
+      m.msg = "No user with that name"
+      return m
+
+    try:
+      last_track = recent_tracks[0].track
+    except:
+      m.msg = "No tracks avaliable for that username"
+      return m
 
     #TODO: add localization
     m.msg = u"Listening to: {0} - {1}".format(last_track.title, last_track.artist.name)
