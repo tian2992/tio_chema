@@ -23,9 +23,7 @@ class PluginIdentica(BaseActionPlugin):
       self.access_key = parser.get('Auth', 'access_key')
       self.access_secret = parser.get('Auth', 'access_secret')
     except:
-      ## TODO: log plugin parser error
-      pass
-
+      logging.error("Error when parsing lastfm plugin info.")
 
   def execute(self, ircMsg, userRole):
     m = IRCMessage()
