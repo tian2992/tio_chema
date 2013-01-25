@@ -44,7 +44,7 @@ class SedPlugin(TextTriggerPlugin):
     groups, lines = result
     group = groups[0]
 
-    logging.debug("RegexTriggerLogged {0}, {1}".format(groups, lines))
+    logging.debug("RegexTriggerLogged {0}, {1}".format(groups))
 
     try:
       try:
