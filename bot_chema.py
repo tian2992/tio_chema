@@ -86,7 +86,6 @@ class ChemaBot(irc.IRCClient):
     for (text_trigger, plugin) in self.text_trigger_plugins:
       if isinstance(text_trigger, type(re.compile(''))):
         result = text_trigger.findall(message)
-      #TODO: make a base class for complex triggers.
       #TODO: specify the info sent to the trigger.
       else:
         #trigger.fire(message, *args, **kwargs)
@@ -120,13 +119,10 @@ class ChemaBot(irc.IRCClient):
       except KeyError:
         logging.warning("Command {0} missing".format(command))
         return
+
       d = threads.deferToThread(plugin.execute, ircm, None)
       d.addCallback(self.emitMessage)
-
-    ## TODO: add main_triggers to nickname
-    #if ircm.msg.startswith(self.nickname):
-    #  pass
-
+      return
 
   def privmsg(self, user, channel, msg):
     """Gets called when the bot receives a message in a channel or via PM.
