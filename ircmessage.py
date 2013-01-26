@@ -23,6 +23,10 @@ class IRCMessage():
        return False
     return True
 
+  def __str__(self):
+    return "<IRCMessage:= channel: {0}, msg: {1}, user: {2}, directed: {3}>".format(
+                          self.channel, self.msg, self.user, self.directed)
+
   def is_initialized(self):
     """Checks if the message is ready to be sent"""
     if self.channel == "#" or self.msg == "":
