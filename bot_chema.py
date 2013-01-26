@@ -72,9 +72,12 @@ class ChemaBot(irc.IRCClient):
   def emitMessage(self, message, channel = None):
     """A function to abstract message emission."""
     if channel:
-      self.say(channel, message.render().encode('utf-8'))
+      self.msg(channel, message.render().encode('utf-8'))
+    ## Handling private messages.
+    elif message.channel == self.nickname:
+      self.msg(message.user.split("!")[0], message.render().encode('utf-8'))
     else:
-      self.say(message.channel, message.render().encode('utf-8'))
+      self.msg(message.channel, message.render().encode('utf-8'))
 
   def _parseAndExecute(self, ircm):
     """Recieves an IRCMessage, detects the command and triggers the appropiate plugin."""
@@ -143,7 +146,7 @@ class ChemaBot(irc.IRCClient):
     message = IRCMessage(channel, msg, user)
 
     #TODO: add logging
-    #print msg
+    #print message
 
     #TODO: add channel trigger plugins (user defined actions)
 
