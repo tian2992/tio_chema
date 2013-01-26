@@ -21,10 +21,15 @@ class ChemaBot(irc.IRCClient):
 
   def __init__(self, nickname):
     self.nickname = nickname
-    self.pluginsInit()
-
-  def pluginsInit(self):
     logging.basicConfig(level=logging.DEBUG)
+    self.plugins_init()
+
+  def plugins_init(self, is_reloading = False):
+    if is_reloading:
+      logging.info("Deactivating All Plugins")
+      for pluginInfo in self.pm.getAllPlugins():
+        self.pm.deactivatePluginByName(pluginInfo.name)
+
     self.pm = PluginManager(
       categories_filter = {
         "BaseActions" : BaseActionPlugin,
@@ -100,6 +105,11 @@ class ChemaBot(irc.IRCClient):
         except IndexError:
           logging.warning('Invalid call: "{0}"'.format(ircm.render()))
           return
+
+      ## TODO: reload should be dependant on userRole
+      if command == "reload":
+        self.plugins_init(is_reloading=True)
+        return
 
       ## TODO: Consider sending the split word list.
       try:
