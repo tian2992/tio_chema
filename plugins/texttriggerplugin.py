@@ -3,5 +3,8 @@ from ircplugin import IRCPlugin
 
 class TextTriggerPlugin(IRCPlugin):
 
-  def execute(self, ircMsg, userRole, regex_group):
+  def __init__(self):
+    IRCPlugin.__init__(self)
+
+  def execute(self, ircMsg, userRole, regex_group, *args, **kwargs):
     raise NotImplementedError

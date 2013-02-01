@@ -8,7 +8,7 @@ import pylast
 
 class PluginLastfm(BaseActionPlugin):
   def __init__(self):
-    #last.enable_caching()
+    BaseActionPlugin.__init__(self)
     try:
       parser = SafeConfigParser()
       parser.read('plugins/lastfm.yapsy-plugin')
@@ -18,7 +18,7 @@ class PluginLastfm(BaseActionPlugin):
 
     self.last = pylast.get_lastfm_network(api_key = self._api_key)
 
-  def execute(self, ircMsg, userRole):
+  def execute(self, ircMsg, userRole, *args, **kwargs):
     m = IRCMessage()
     m.user = ircMsg.user
     m.channel = ircMsg.channel

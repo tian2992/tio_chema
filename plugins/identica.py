@@ -10,6 +10,7 @@ import re
 class PluginIdentica(BaseActionPlugin):
 
   def __init__(self):
+    BaseActionPlugin.__init__(self)
     self.host = 'identi.ca'
     self.api_root = '/api/'
     self.oauth_root = self.api_root + 'oauth/'

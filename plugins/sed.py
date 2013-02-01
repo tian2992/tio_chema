@@ -34,6 +34,7 @@ class LoggingRegexTrigger():
 class SedPlugin(TextTriggerPlugin):
 
   def __init__(self):
+    TextTriggerPlugin.__init__(self)
     self.trigger = LoggingRegexTrigger(re.compile("^s([\d]*)/([^/]+)/([^/]+)/$"))
 
   def execute(self, ircMsg, userRole, result):

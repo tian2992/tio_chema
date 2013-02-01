@@ -6,11 +6,13 @@ class PluginPing(BaseActionPlugin):
 
   # This constructor is optional
   def __init__(self):
+    BaseActionPlugin.__init__(self)
     self.threshold = 3
     self.counter = 0
     self.last_user = ""
+    self.synchronous = True
 
-  def execute(self, ircMsg, userRole):
+  def execute(self, ircMsg, userRole, *args, **kwargs):
     user = ircMsg.user
     if user == self.last_user:
       self.counter += 1

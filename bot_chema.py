@@ -3,7 +3,7 @@ import time, sys, re
 import logging
 
 from twisted.words.protocols import irc
-from twisted.internet import reactor, protocol, threads
+from twisted.internet import reactor, protocol, threads, defer
 from twisted.python import log
 from yapsy.PluginManager import PluginManager
 from configobj import ConfigObj
@@ -108,7 +108,8 @@ class ChemaBot(irc.IRCClient):
           logging.warning('Invalid call: "{0}"'.format(ircm.render()))
           return
 
-      ## TODO: reload should be dependant on userRole
+      ## TODO: Reload should be dependant on userRole
+      ## TODO: Localize
       if command == "reload":
         self.plugins_init(is_reloading=True)
         return
@@ -120,7 +121,10 @@ class ChemaBot(irc.IRCClient):
         logging.warning("Command {0} missing".format(command))
         return
 
-      d = threads.deferToThread(plugin.execute, ircm, None)
+      if plugin.synchronous:
+        d = defer.maybeDeferred(plugin.execute, ircm, None)
+      else:
+        d = threads.deferToThread(plugin.execute, ircm, None)
       d.addCallback(self.emitMessage)
       return
 
