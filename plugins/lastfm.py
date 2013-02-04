@@ -22,17 +22,36 @@ class PluginLastfm(BaseActionPlugin):
     #TODO: Localize commands
     self.function_dict = {
                           "user": self.get_user_track,
-                          #"artist": get_artist_tracks,
+                          "artist": get_artist_tracks,
                           #"genre": get_genre_artists,
                           #"track": get_related_tracks,
                          }
+                         
+  def get_artist_tracks(self, ircMsg):
+    """Gets the selected user track, returns an IRCMessage"""
+    m = IRCMessage(user=ircMsg.user, channel=ircMsg.channel)
+    artist_s = ircMsg.msg.split(' ')[2]
+    artist = self.last.get_artist(artist_s)
+    logging.info("Getting last.fm artist {0}".format(artist_s))
+    try:
+      similar_artists = artist.get_similar()
+    except:
+      m.msg = "No artist with that name"
+      return m
+    
+    similar_artists_s = ", ".join(map(lambda a: a.get_name(), similar_artists))
+    
+    m.msg = u"Artists similar to {0} are: {1}".format(artist_s, similar_artists_s)
+    
+    return m
+    
 
   def get_user_track(self, ircMsg):
     """Gets the selected user track, returns an IRCMessage"""
     m = IRCMessage(user=ircMsg.user, channel=ircMsg.channel)
     user_s = ircMsg.msg.split(' ')[2]
+    user = self.last.get_user(user_s)    
     logging.info("Getting last.fm user {0}".format(user_s))
-    user = self.last.get_user(user_s)
     try:
       recent_tracks = user.get_recent_tracks()
     except:
@@ -45,7 +64,7 @@ class PluginLastfm(BaseActionPlugin):
       m.msg = "No tracks avaliable for that username"
       return m
 
-    m.msg = u'User {0} is listening to: {0} - {1}'.format(user_s, last_track.title, last_track.artist.name)
+    m.msg = u'User {0} is listening to: {1} - {2}'.format(user_s, last_track.title, last_track.artist.name)
     return m
 
   def execute(self, ircMsg, userRole, *args, **kwargs):
