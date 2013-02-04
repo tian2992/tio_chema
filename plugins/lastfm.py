@@ -22,7 +22,7 @@ class PluginLastfm(BaseActionPlugin):
     #TODO: Localize commands
     self.function_dict = {
                           "user": self.get_user_track,
-                          "artist": get_artist_tracks,
+                          "artist": self.get_artist_tracks,
                           #"genre": get_genre_artists,
                           #"track": get_related_tracks,
                          }
