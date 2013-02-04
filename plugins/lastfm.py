@@ -6,6 +6,7 @@ import logging
 
 import pylast
 
+#TODO: Localize
 class PluginLastfm(BaseActionPlugin):
   def __init__(self):
     BaseActionPlugin.__init__(self)
@@ -18,19 +19,23 @@ class PluginLastfm(BaseActionPlugin):
 
     self.last = pylast.get_lastfm_network(api_key = self._api_key)
 
-  def execute(self, ircMsg, userRole, *args, **kwargs):
-    m = IRCMessage()
-    m.user = ircMsg.user
-    m.channel = ircMsg.channel
+    #TODO: Localize commands
+    self.function_dict = {
+                          "user": self.get_user_track,
+                          #"artist": get_artist_tracks,
+                          #"genre": get_genre_artists,
+                          #"track": get_related_tracks,
+                         }
 
-    user_s = ircMsg.msg.split(' ')[1]
+  def get_user_track(self, ircMsg):
+    """Gets the selected user track, returns an IRCMessage"""
+    m = IRCMessage(user=ircMsg.user, channel=ircMsg.channel)
+    user_s = ircMsg.msg.split(' ')[2]
     logging.info("Getting last.fm user {0}".format(user_s))
     user = self.last.get_user(user_s)
-
     try:
       recent_tracks = user.get_recent_tracks()
     except:
-      #TODO: Localize
       m.msg = "No user with that name"
       return m
 
@@ -40,7 +45,14 @@ class PluginLastfm(BaseActionPlugin):
       m.msg = "No tracks avaliable for that username"
       return m
 
-    #TODO: add localization
-    m.msg = u"Listening to: {0} - {1}".format(last_track.title, last_track.artist.name)
-
+    m.msg = u'User {0} is listening to: {0} - {1}'.format(user_s, last_track.title, last_track.artist.name)
     return m
+
+  def execute(self, ircMsg, userRole, *args, **kwargs):
+    command_s = ircMsg.msg.split(' ')[1]
+    try:
+      func = self.function_dict[command_s]
+      return func(ircMsg)
+    except:
+      ircMsg.msg = "Incorrect last.fm command."
+      return ircMsg
