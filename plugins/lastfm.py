@@ -26,7 +26,7 @@ class PluginLastfm(BaseActionPlugin):
                           #"genre": get_genre_artists,
                           #"track": get_related_tracks,
                          }
-                         
+
   def get_artist_tracks(self, ircMsg):
     """Gets the selected user track, returns an IRCMessage"""
     m = IRCMessage(user=ircMsg.user, channel=ircMsg.channel)
@@ -38,18 +38,15 @@ class PluginLastfm(BaseActionPlugin):
     except:
       m.msg = "No artist with that name"
       return m
-    similar_artists_s = ", ".join(map(lambda a: a[0].get_name(), similar_artists))
-    m.msg = u"Artists similar to {0} are: {1}".format(artist_s, similar_artists_s)
-    
+    similar_artists_s = u", ".join(map(lambda a: a[0].get_name(), similar_artists))
+    m.msg = u"Artists similar to {0} are: {1}".format(artist.get_name().decode("utf-8"), similar_artists_s)
     return m
-
-    
 
   def get_user_track(self, ircMsg):
     """Gets the selected user track, returns an IRCMessage"""
     m = IRCMessage(user=ircMsg.user, channel=ircMsg.channel)
     user_s = ircMsg.msg.split(' ')[2]
-    user = self.last.get_user(user_s)    
+    user = self.last.get_user(user_s)
     logging.info("Getting last.fm user {0}".format(user_s))
     try:
       recent_tracks = user.get_recent_tracks()
@@ -58,7 +55,9 @@ class PluginLastfm(BaseActionPlugin):
       return m
 
     try:
-      last_track = recent_tracks[0].track
+      last_track = user.get_now_playing()
+      if not last_track:
+        last_track = recent_tracks[0].track
     except:
       m.msg = "No tracks avaliable for that username"
       return m
