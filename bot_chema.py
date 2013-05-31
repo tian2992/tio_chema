@@ -48,11 +48,16 @@ class ChemaBot(irc.IRCClient):
     # List of the regexes and plugins
     self.text_trigger_plugins = []
     # TODO: specify categories of plugins with each trigger http://yapsy.sourceforge.net/PluginManager.html
+
     for pluginInfo in self.pm.getPluginsOfCategory("BaseActions"):
       self.action_plugins[pluginInfo.name] = pluginInfo.plugin_object
 
+    logging.debug("Action plugins: {0}".format(self.action_plugins))
+
     for pluginInfo in self.pm.getPluginsOfCategory("TextActions"):
       self.text_trigger_plugins.append((pluginInfo.plugin_object.trigger, pluginInfo.plugin_object))
+
+    logging.debug("Regex plugins: {0}".format(self.text_trigger_plugins))
 
 
   # Useful for debugging
