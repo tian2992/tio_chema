@@ -4,4 +4,4 @@ virtualenv --no-site-packages venv
 
 source venv/bin/activate
 
-pip install twisted yapsy configobj tweepy
+pip install twisted yapsy configobj tweepy praw
