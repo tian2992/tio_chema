@@ -62,7 +62,10 @@ class PluginLastfm(BaseActionPlugin):
       m.msg = "No tracks avaliable for that username"
       return m
 
-    m.msg = u'User {0} is listening to: {1} - {2}'.format(user_s, last_track.title, last_track.artist.name)
+    tags_string =  " , ".join([tag[0].name for tag in last_track.get_top_tags(4)])
+
+    m.msg = u'User {0} is listening to: {1} - {2}: tags [ {3} ]'.format(user_s, last_track.title,
+      last_track.artist.name, tags_string)
     return m
 
   def execute(self, ircMsg, userRole, *args, **kwargs):
