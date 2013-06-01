@@ -23,7 +23,7 @@ class PluginLastfm(BaseActionPlugin):
     self.function_dict = {
                           "user": self.get_user_track,
                           "artist": self.get_artist_tracks,
-                          "tag_artist": self.get_tag_artists,
+                          "tag_artists": self.get_tag_artists,
                           "tag_albums": self.get_tag_albums,
                          }
 
