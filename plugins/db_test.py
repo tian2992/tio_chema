@@ -19,5 +19,5 @@ class DB_Test(BaseActionPlugin):
     m.channel = ircMsg.channel
     m.user = user
     m.directed = True
-    logging.debug("User: {0} pinged".format(user))
+    logging.debug("User: {0} hit the DB".format(user))
     return m
