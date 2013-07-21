@@ -2,6 +2,7 @@ from plugins.baseactionplugin import BaseActionPlugin
 from ircmessage import IRCMessage
 import sqlite3
 import logging
+import random
 
 class DB_Test(BaseActionPlugin):
 
@@ -14,8 +15,11 @@ class DB_Test(BaseActionPlugin):
     user = ircMsg.user
     m = IRCMessage()
     conn = kwargs["connection"]
-    conn.execute("select * from users").fetchall()
-    m.msg = "dbtested"
+    m.msg = unicode()
+    all_rows = conn.execute("select * from users").fetchall()
+    choice = random.choice(all_rows)
+    m.msg = "The selected user is {0}".format(choice[0])
+
     m.channel = ircMsg.channel
     m.user = user
     m.directed = True
