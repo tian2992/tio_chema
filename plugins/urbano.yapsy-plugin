@@ -1,0 +1,11 @@
+[Core]
+Name = urbano
+Module = urbano
+
+[Documentation]
+Author = Wences Arana
+Version = 0.01
+Website = http://identi.ca/aranax
+Description = Urbano plugin
+
+
