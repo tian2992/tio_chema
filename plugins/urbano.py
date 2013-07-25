@@ -11,17 +11,16 @@ class Urbano(BaseActionPlugin):
   def __init_(self):
     BaseActionPlugin.__init__(self)
     self.synchronous = False
+
   def execute(self, ircMsg, userRole, *args, **kwargs):
       user = ircMsg.user
       m = IRCMessage()
       definiciones = []
       message = ' '.join(ircMsg.msg.split())
       term = re.sub('^!urbano ', '', message)
-      print 'mensaje es ' + message 
-      print 'term es '+ term
 
       payload = {'term': term  }
-      url = "http://www.urbandictionary.com/define.php?"
+      url = "http://www.urbandictionary.com/define.php?"    
 
       f = requests.get( url, params=payload)
       data = f.text

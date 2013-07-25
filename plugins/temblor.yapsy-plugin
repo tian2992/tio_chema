@@ -1,0 +1,11 @@
+[Core]
+Name = temblor
+Module = temblor
+
+[Documentation]
+Author = Wences Arana
+Version = 0.01
+Website = http://identi.ca/aranax
+Description = Temblor plugin
+
+
