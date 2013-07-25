@@ -1,4 +1,7 @@
 import requests
+import types
+import re
+from random import randint
 from plugins.baseactionplugin import BaseActionPlugin
 from ircmessage import IRCMessage
 from plugins.lengua import _
@@ -12,11 +15,12 @@ class Urbano(BaseActionPlugin):
       user = ircMsg.user
       m = IRCMessage()
       definiciones = []
+      message = ' '.join(ircMsg.msg.split())
+      term = re.sub('^!urbano ', '', message)
+      print 'mensaje es ' + message 
+      print 'term es '+ term
 
-      term = m.msg
-      print 'el valor de term es' + term
-
-      payload = {'term': 'stfu'  }
+      payload = {'term': term  }
       url = "http://www.urbandictionary.com/define.php?"
 
       f = requests.get( url, params=payload)
@@ -26,10 +30,10 @@ class Urbano(BaseActionPlugin):
       tag = soup.find_all('div', attrs={'class' : 'definition' } )
 
       for tagita in tag:
-        if type(tagita.string) != NoneType :
+        if type(tagita.string) != types.NoneType :
           definiciones.append( tagita.string.strip() )
 
-      respuesta = definiciones[ random.randint( 0, len( definiciones ) - 1 ) ]
+      respuesta = definiciones[ randint( 0, len( definiciones ) - 1 ) ]
 
       m.msg = respuesta
       m.channel = ircMsg.channel
