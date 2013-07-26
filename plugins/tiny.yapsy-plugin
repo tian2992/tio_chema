@@ -1,0 +1,9 @@
+[Core]
+Name = tiny
+Module = tiny
+
+[Documentation]
+Author = Wences Arana
+Version = 0.01
+Website = http://identi.ca/aranax
+Description = Tiny plugin
