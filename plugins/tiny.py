@@ -3,13 +3,16 @@ import types
 import re
 from random import randint
 from plugins.baseactionplugin import BaseActionPlugin
+from plugins.texttriggerplugin import TextTriggerPlugin
 from ircmessage import IRCMessage
 from plugins.lengua import _
 from bs4 import BeautifulSoup
 
 class Tiny(BaseActionPlugin):
   def __init_(self):
+    self.trigger = re.compile( '(http|https)://([A-Za-z0-9])+(.[a-zA-Z]*)+(/[a-zA-Z0-9_%=\?&.])*' )
     BaseActionPlugin.__init__(self)
+    TextTriggerPlugin.__init__(self)
     self.synchronous = False
 
   def execute(self, ircMsg, userRole, *args, **kwargs):
@@ -18,6 +21,9 @@ class Tiny(BaseActionPlugin):
       definiciones = []
       message = ' '.join(ircMsg.msg.split())
       path = re.sub('^!tiny ', '', message)
+      if not path :
+        path = message
+      print path
       if not path.startswith('http'):
           path = '%s%s' % ('http://', path)
 
@@ -39,3 +45,9 @@ class Tiny(BaseActionPlugin):
       return m
       
 
+  def execute(self, ircMsg, userRole, result):
+      m.msg = 'holis'
+      m.channel = ircMsg.channel
+      m.user = user
+      m.directed = True
+      return m

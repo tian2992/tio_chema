@@ -2,6 +2,7 @@ import requests
 import types
 import re
 import json
+from datetime import datetime
 from random import randint
 from plugins.baseactionplugin import BaseActionPlugin
 from ircmessage import IRCMessage
@@ -23,15 +24,19 @@ class Temblor(BaseActionPlugin):
       f = requests.get( url )
       data = json.loads(f.text)
 
-      print type( data['features'] )
-      print len( data['features'] )
       for feature in data['features']:
         cadena = feature['properties']['place']
         
-        if cadena.find( 'California' ) != -1 :
-          print cadena
+        if cadena.upper().find( term.upper() ) != -1 :
+          definiciones.append( feature )
 
-      m.msg = ''
+      size = len( definiciones )
+      temblo = definiciones[ randint( 0, size ) ]
+      fecha_t = datetime.fromtimestamp( temblo[ 'properties' ][ 'time' ] / 1000 )
+      fecha = fecha_t.strftime( '%d/%M/%Y %H:%m:%s')
+      
+      respuesta = '' + str( temblo[ 'properties' ][ 'mag' ] ) + ' | ' + temblo[ 'properties' ][ 'place' ] +  ' | ' + fecha + ' | '+ temblo[ 'properties' ][ 'url' ] 
+      m.msg = respuesta
       m.channel = ircMsg.channel
       m.user = user
       m.directed = True
