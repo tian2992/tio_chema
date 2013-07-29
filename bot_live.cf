@@ -1,10 +1,9 @@
 # Configuration file
 # Reference: http://www.voidspace.org.uk/python/configobj.html#the-config-file-format
 log_file = bot.log
-nickname = failbot
+nickname = pepito
 channel = slgt-chat
 irc_server = irc.freenode.net
-#irc_server = localhost
 irc_port = 6667
 
-main_command_trigger = "#"
+main_command_trigger = "!"
