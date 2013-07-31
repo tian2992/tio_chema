@@ -22,16 +22,18 @@ class Wiki(BaseActionPlugin):
       term = re.sub('^!wiki ', '', message)
       term = re.sub( ' ', '_', term )
 
-      url = "http://es.wikipedia.org/wiki/" + term    
+      url = "http://es.wikipedia.org/wiki/" + term
 
       f = requests.get( url )
       data = f.text
+      try:
+        soup = BeautifulSoup( data )
+        tag = soup.find_all('div', attrs={'class' : 'mw-content-ltr' } )
+        p = tag[0].p.text.encode('utf8')
+      except:
+        ircMsg.msg = "An error ocurred."
+        return ircMsg
 
-      soup = BeautifulSoup( data )
-      tag = soup.find_all('div', attrs={'class' : 'mw-content-ltr' } )
-      p = tag[0].p.text.encode('utf8')
-      
-#      dic = json.loads(data)
       m.msg = p
       m.channel = ircMsg.channel
       m.user = user
