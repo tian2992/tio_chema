@@ -134,8 +134,8 @@ class ChemaBot(irc.IRCClient):
         d = defer.maybeDeferred(plugin.execute, ircm, None)
       else:
         d = threads.deferToThread(plugin.execute, ircm, None, connection = self.db_manager)
-
-      return d
+      d.addCallback(self.emitMessage)
+      return
 
   def privmsg(self, user, channel, msg):
     """Gets called when the bot receives a message in a channel or via PM.
@@ -159,9 +159,7 @@ class ChemaBot(irc.IRCClient):
 
     #TODO: add channel trigger plugins (user defined actions)
 
-    d = self._parseAndExecute(message)
-    if !d
-      d.addCallback(self.emitMessage)
+    self._parseAndExecute(message)
 
 
 class ChemaBotFactory(protocol.ClientFactory):
