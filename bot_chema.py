@@ -160,7 +160,8 @@ class ChemaBot(irc.IRCClient):
     #TODO: add channel trigger plugins (user defined actions)
 
     d = self._parseAndExecute(message)
-    d.addCallback(self.emitMessage)
+    if !d
+      d.addCallback(self.emitMessage)
 
 
 class ChemaBotFactory(protocol.ClientFactory):
