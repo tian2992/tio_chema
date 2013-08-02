@@ -3,6 +3,7 @@ import types
 import re
 import json
 import random
+import os, sys
 from plugins.baseactionplugin import BaseActionPlugin
 from ircmessage import IRCMessage
 from plugins.lengua import _
@@ -21,6 +22,7 @@ class Preguntar(BaseActionPlugin):
     self.region = 'e1'
     self.url = 'http://answers.yahooapis.com/AnswersService/V1/questionSearch'
     self.output = 'json'
+
     payload = { 'query' : topic, 'appid' :  self.appid, 'region' : self.region, 'output' : self.output }
     f = requests.get( self.url, params=payload )
     data = json.loads(f.text)
@@ -30,7 +32,7 @@ class Preguntar(BaseActionPlugin):
 
     question = random.choice( preguntas['questions'] )
 
-    return u'Pregunta: ' + question['Subject'] + ' | Respuesta ' + question['ChosenAnswer'][:250] + ' | Link: ' + question['Link']
+    return u'Pregunta: ' + question['Subject'] + ' | Respuesta ' + ''.join(question['ChosenAnswer'].split('\n'))[:250] + ' | Link: ' + question['Link']
 
   def execute(self, ircMsg, userRole, *args, **kwargs):
       user = ircMsg.user

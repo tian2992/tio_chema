@@ -3,7 +3,7 @@
 log_file = bot.log
 nickname = failbot
 channel = testbot
-irc_server = localhost
+irc_server = irc.freenode.net
 irc_port = 6667
 
 main_command_trigger = "!"
