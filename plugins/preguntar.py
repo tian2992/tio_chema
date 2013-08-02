@@ -29,8 +29,8 @@ class Preguntar(BaseActionPlugin):
       return 'Ese termino cerote no tiene respuesta'.encode( 'utf8' )
 
     question = random.choice( preguntas['questions'] )
-      
-    return u'Pregunta: ' + question['Subject'].encode('utf8') + ' | Respuesta ' + question['ChosenAnswer'].encode('utf8')[:250] + ' | Link: ' + question['Link'].encode('utf8')
+
+    return u'Pregunta: ' + question['Subject'] + ' | Respuesta ' + question['ChosenAnswer'][:250] + ' | Link: ' + question['Link']
 
   def execute(self, ircMsg, userRole, *args, **kwargs):
       user = ircMsg.user
