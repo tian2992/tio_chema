@@ -1,0 +1,11 @@
+[Core]
+Name = 4chan
+Module = 4chan
+
+[Documentation]
+Author = Wences Arana
+Version = 0.01
+Website = http://identi.ca/aranax
+Description = 4chan plugin
+
+
