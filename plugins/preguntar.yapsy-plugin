@@ -1,0 +1,11 @@
+[Core]
+Name = preguntar
+Module = preguntar
+
+[Documentation]
+Author = Wences Arana
+Version = 0.01
+Website = http://identi.ca/aranax
+Description = Preguntar plugin
+
+

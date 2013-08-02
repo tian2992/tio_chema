@@ -7,7 +7,7 @@ from plugins.baseactionplugin import BaseActionPlugin
 from ircmessage import IRCMessage
 from plugins.lengua import _
 
-class Temblor(BaseActionPlugin):
+class CuatroChan(BaseActionPlugin):
   def __init_(self):
     BaseActionPlugin.__init__(self)
     self.synchronous = False
