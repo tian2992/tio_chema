@@ -1,11 +1,11 @@
 [Core]
-Name = preguntar
-Module = preguntar
+Name = xkcd
+Module = xkcd
 
 [Documentation]
 Author = Wences Arana
-Version = 0.02
+Version = 0.01
 Website = http://identi.ca/aranax
-Description = Preguntar plugin
+Description = XKCD plugin
 
 
