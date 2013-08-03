@@ -16,30 +16,39 @@ class Temblor(BaseActionPlugin):
     self.synchronous = False
     self.base_url = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson"
 
+  def get_quake(self, place = ""):
+    data = self.__fetch_data(self.base_url)
+    quakes = []
+    ## If there was a selected place.
+    if place:
+        logging.debug("Getting earthquakes for: '{0}'.".format(place))
+        for feature in data['features']:
+          cadena = feature['properties']['place']
+          if cadena.lower().find(place.lower()) != -1 :
+            quakes.append(feature)
+        ## In case there has not been any quake there recently.
+        if not quakes:
+          raise Exception("There has not been any quake there in a while.")
+        quake = random.choice(quakes)
+    ## Otherwise let's just pick the most recent quake.
+    else:
+      quake = data['features'][0]
+    return quake
+
+  def __fetch_data(self, base_url):
+     f = requests.get(base_url)
+     return f.json()
+
   def execute(self, ircMsg, userRole, *args, **kwargs):
       user = ircMsg.user
       m = IRCMessage()
-      definiciones = []
-      term = ircMsg.arguments
-      f = requests.get(self.base_url)
-      data = f.json()
+      term = ' '.join(ircMsg.arguments)
 
-      ## If there was a selected place.
-      if term:
-        logging.debug("Getting earthquakes for: '{0}'.".format(' '.join(term)))
-        for feature in data['features']:
-          cadena = feature['properties']['place']
-          if cadena.lower().find(' '.join(term).lower()) != -1 :
-            definiciones.append(feature)
-        ## In case there has not been any quake there recently.
-        if not definiciones:
-          ircMsg.msg = "There has not been any quake there in a while."
-          return ircMsg
-        temblo = random.choice(definiciones)
-      ## Let's just pick the most recent quake.
-      else:
-        temblo = data['features'][0]
-
+      try:
+        temblo = self.get_quake(term)
+      except Exception as e:
+        ircMsg.msg = e.args[0]
+        return ircMsg
 
       ## Converting UNIX timestamp to human readable time.
       date_t = datetime.fromtimestamp(temblo['properties']['time'] / 1000)
