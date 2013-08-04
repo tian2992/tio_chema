@@ -19,6 +19,7 @@ class Chaturbate(BaseActionPlugin):
         self.function_dict={
             'genre': self.get_online_by_gender,
             'nick': self.get_url_by_nick,
+            'help': self.help,
             }
 
 
@@ -32,6 +33,16 @@ class Chaturbate(BaseActionPlugin):
         except :
             logging.error('An error ocurred while retrieving users list ')
             return None
+
+    def help(self, command):
+
+        if command == 'nick':
+            return "!chaturbate nick <nick_de_la_puta> te muestro informacion importante de la puta que quieres ver"
+
+        elif command == 'genre':
+            return '!chaturbate genre <opcion>. Opciones: f=perras, m=garrotes, s=trannys(!lfac), c=parejas'
+        else:
+            return "!chaturbate <opcion> <parametro> | Mas info: !chaturbate help (genre|nick)"
 
     def get_online_by_gender(self, gender):
         """gender: Can be f, m, s, or c for female, male, shemale,
@@ -72,7 +83,6 @@ class Chaturbate(BaseActionPlugin):
         
         command = ircMsg.msg.split(' ')
         command_type = command[1]
-        args = command[2]
         
         irc_msg = IRCMessage()
         irc_msg.channel = ircMsg.channel
@@ -80,7 +90,8 @@ class Chaturbate(BaseActionPlugin):
         irc_msg.directed = True
         
         try:
-
+            args = command[2]
+        
             func = self.function_dict[command_type]
 
             if args != '' or args is not None:
@@ -88,10 +99,10 @@ class Chaturbate(BaseActionPlugin):
                 irc_msg.msg = func(args)
 
             else:
-                irc_msg.msg = 'Mula te falto un parametro'
+                irc_msg.msg = func('help')
                 
         except:
-            irc_msg.msg = 'Creo que la he cagado'
+            irc_msg.msg =  self.help(None)
             logging.error('Error processing commands')
             
         return irc_msg
