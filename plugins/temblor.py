@@ -10,7 +10,7 @@ from plugins.lengua import _
 from bs4 import BeautifulSoup
 
 class Temblor(BaseActionPlugin):
-  def __init_(self):
+  def __init__(self):
     BaseActionPlugin.__init__(self)
     self.synchronous = False
 

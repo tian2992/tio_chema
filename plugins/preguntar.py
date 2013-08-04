@@ -9,7 +9,7 @@ from ircmessage import IRCMessage
 from plugins.lengua import _
 
 class Preguntar(BaseActionPlugin):
-  def __init_(self):
+  def __init__(self):
     BaseActionPlugin.__init__(self)
     self.synchronous = False
     self.appid = 'D7KT0yvV34Fwo1YDnWKdCQibOdWcK9VzBHjut.3Y8wDrlfZKSluzcGje3wkGw3eE4CAjf65aTZs3xLd8DszXSdtFrYlyUiQ-'
