@@ -9,7 +9,7 @@ from plugins.lengua import _
 from bs4 import BeautifulSoup
 
 class Tiny(BaseActionPlugin):
-  def __init_(self):
+  def __init__(self):
     self.trigger = re.compile( '(http|https)://([A-Za-z0-9])+(.[a-zA-Z]*)+(/[a-zA-Z0-9_%=\?&.])*' )
     BaseActionPlugin.__init__(self)
     TextTriggerPlugin.__init__(self)

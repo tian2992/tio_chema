@@ -8,7 +8,7 @@ from ircmessage import IRCMessage
 from plugins.lengua import _
 
 class CuatroChan(BaseActionPlugin):
-  def __init_(self):
+  def __init__(self):
     BaseActionPlugin.__init__(self)
     self.synchronous = False
 
