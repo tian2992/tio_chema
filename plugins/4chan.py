@@ -14,77 +14,77 @@ class CuatroChan(BaseActionPlugin):
     self.synchronous = False
     self.url = 'http://api.4chan.org/'
     self.function_dict = {
-                          "default": self.get_random,
-                          "threads": self.get_threads,
+                          "default": self.handle_get_random_thread,
+                          "random_thread": self.handle_get_random_thread,
                          }
 
-  def get_boards( self, abuscar ):
+  def __get_boards( self, board ):
+      logging.debug("Getting board {0}".format(board))
       url = self.url + 'boards.json'
       f = requests.get( url )
-      data = json.loads(f.text)
-
-      for board in data[ 'boards' ]:
-        if board[ 'board' ] == abuscar :
+      data = f.json()
+      try:
+        if board in [element['board'] for element in data['boards']]:
           return True
-
+      except KeyError:
+        return False
       return False
 
-  def get_thread( self, board ):
+  def __get_random_thread( self, board ):
       try:
-        existe = self.get_boards( board )
-        print existe
+        existe = self.__get_boards(board)
         if not existe :
           respuesta = 'Ese board mierda no existe'
           return respuesta
 
-        url = self.url + board + '/threads.json'    
-        f = requests.get( url )
+        threads_url = (self.url+"{0}/threads.json").format(board)
+        f = requests.get( threads_url )
         data = json.loads( f.text )
         page = random.choice( data )
         threads = random.choice( page[ 'threads' ] )
         id_thread = threads[ 'no' ]
-        respuesta = 'Te recomiendo este thread http://4chan.org/{0}/{1}'.format( board, id_thread )
+        respuesta = '4chan thread http://4chan.org/{0}/{1}'.format( board, id_thread )
       except:
+        logging.exception("Get thread fail.")
         respuesta = 'Fallo el api 4chanesco'
       return respuesta
 
 
-  def get_threads( self, ircMsg ):
-      message = ' '.join( ircMsg.msg.split() )      
-      try:
-        board = ircMsg.msg.split(' ')[ 1 ]
-        ircMsg.msg = self.get_thread( board )
-      except:
-        ircMsg.msg = 'Fallo el api 4chanesco' 
-      return ircMsg
+  def get_random_thread_string(self, board="b"):
+    logging.debug("Getting random thread from {0}".format(board))
+    try:
+      return self.__get_random_thread(board)
+    except:
+      logging.exception("4chan: get threads API fail.")
+      return 'Fallo el api 4chanesco'
 
 
-  def get_random( self, ircMsg ):
-      random = 'b'
-      try:
-        ircMsg.msg = self.get_thread( random )
-      except:
-        logging.exception( 'Fallo en obtener json' )
-        ircMsg.msg =  'Fallo el api 4chanesco' 
-      
-      return ircMsg
+  def handle_get_random_thread(self, ircMsg):
+    ## Nasty hack as there is only one action.
+    args = "".join(ircMsg.arguments)
+    board = args if args else "b"
+    try:
+      return self.get_random_thread_string(board)
+    except:
+      logging.exception("something happened")
 
 
   def execute(self, ircMsg, userRole, *args, **kwargs):
       user = ircMsg.user
-      m = IRCMessage()      
-      message = ' '.join( ircMsg.msg.split() )
-      
-      options = ircMsg.msg.split(' ')
+      m = IRCMessage()
+      options = ircMsg.msg.split(' ')[1::]
+      logging.debug("called {0}".format(options))
       try:
-        if( len( options ) > 1 ):
-          func = self.function_dict[ 'threads' ]
-          return func( ircMsg )
-        else: 
-          func = self.function_dict[ 'default' ]
-          return func( ircMsg )
+        if options:
+          command = options[0]
+        else:
+          command = "default"
+        func = self.function_dict.get(command, self.function_dict['random_thread'])
+        message = func(ircMsg)
+        ircMsg.msg = message
+        return ircMsg
       except:
         logging.exception("Exception in 4chan command.")
         ircMsg.msg = "Fracaso en el plugin 4chan"
         return ircMsg
-    
+
