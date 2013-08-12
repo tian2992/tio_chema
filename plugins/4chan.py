@@ -17,22 +17,31 @@ class CuatroChan(BaseActionPlugin):
                           "default": self.handle_get_random_thread,
                           "random_thread": self.handle_get_random_thread,
                          }
+    self.boards = self.__fetch_boards_dict()
 
-  def __get_boards( self, board ):
-      logging.debug("Getting board {0}".format(board))
-      url = self.url + 'boards.json'
-      f = requests.get( url )
-      data = f.json()
-      try:
-        if board in [element['board'] for element in data['boards']]:
-          return True
-      except KeyError:
-        return False
-      return False
+
+  def __fetch_boards_dict(self):
+
+    def extract(item):
+      return {item["board"]: {"title": item["title"], "worksafe":item["ws_board"]}}
+
+    def add_dict(dictionary, new_dictionary):
+      dictionary.update(new_dictionary)
+      return dictionary
+
+    logging.debug("Getting boards")
+    url = self.url + 'boards.json'
+    f = requests.get( url )
+    data = f.json()
+
+    boards_list = map(extract, data["boards"])
+    boards = reduce(add_dict, boards_list, {})
+
+    return boards
 
   def __get_random_thread( self, board ):
       try:
-        existe = self.__get_boards(board)
+        existe = self.boards.get(board)
         if not existe :
           respuesta = 'Ese board mierda no existe'
           return respuesta
