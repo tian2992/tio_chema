@@ -15,7 +15,7 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 #
-import urllib
+import requests
 import logging
 from plugins.baseactionplugin import BaseActionPlugin
 from ircmessage import IRCMessage
@@ -28,9 +28,15 @@ class diagonalpunto(BaseActionPlugin):
   """
   def __init__(self):
     BaseActionPlugin.__init__(self)
+    self.baseurl = 'http://rss.slashdot.org/Slashdot/slashdot'
 
-  def devolver_lista_de(self, url_hueco):
-    diagonalpunto=minidom.parse(urllib.urlopen(url_hueco))
+  def __fetch_data(self, url):
+     f = requests.get(base_url)
+     return f.text()
+
+  def devolver_lista_de(self, url):
+    string_data = self.__fetch_data(self.baseurl)
+    diagonalpunto=minidom.parseString(string_data)
     historias=diagonalpunto.getElementsByTagName('item')
     articulos=[]
     for nodos in historias:
@@ -45,7 +51,7 @@ class diagonalpunto(BaseActionPlugin):
     user = ircMsg.user
     m = IRCMessage()
     message = ' '.join(ircMsg.msg.split())
-    lista_articulos = self.devolver_lista_de('http://rss.slashdot.org/Slashdot/slashdot')
+    lista_articulos = self.devolver_lista_de(self.baseurl)
     hp=randint(0,len(lista_articulos)-1)
     m.msg=''+lista_articulos[hp][2][:228] + '...... publicado el: ' + lista_articulos[hp][3] + ' en la seccion ' + lista_articulos[hp][9]
     m.channel = ircMsg.channel

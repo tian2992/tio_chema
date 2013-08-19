@@ -4,6 +4,6 @@ Module = diagonalpunto
 
 [Documentation]
 Author = Fernando Larrazábal
-Version = 0.1
+Version = 0.2
 Website = ninguno
 Description = mostrar noticias del rss de slashdot
