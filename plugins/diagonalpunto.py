@@ -32,7 +32,7 @@ class diagonalpunto(BaseActionPlugin):
 
   def __fetch_data(self, url):
      f = requests.get(url)
-     return f.text()
+     return f.text
 
   def devolver_lista_de(self, url):
     string_data = self.__fetch_data(self.baseurl)
