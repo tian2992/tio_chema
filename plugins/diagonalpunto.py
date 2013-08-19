@@ -31,7 +31,7 @@ class diagonalpunto(BaseActionPlugin):
     self.baseurl = 'http://rss.slashdot.org/Slashdot/slashdot'
 
   def __fetch_data(self, url):
-     f = requests.get(base_url)
+     f = requests.get(url)
      return f.text()
 
   def devolver_lista_de(self, url):
