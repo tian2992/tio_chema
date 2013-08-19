@@ -1,0 +1,9 @@
+[Core]
+Name = diagonalpunto
+Module = diagonalpunto
+
+[Documentation]
+Author = Fernando Larrazábal
+Version = 0.1
+Website = ninguno
+Description = mostrar noticias del rss de slashdot
