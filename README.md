@@ -36,4 +36,4 @@ Pending
 Plugin Architecture
 -------------------
 
-Pending
+Plugins are based in YAPSY plugins, you can inherit from BasePlugin and TextTriggerPlugin
