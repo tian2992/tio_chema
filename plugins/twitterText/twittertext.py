@@ -62,7 +62,7 @@ class TwitterTextPlugin(TextTriggerPlugin):
     m.channel = ircMsg.channel
     regex_group = regex_groups[0]
 
-    status = api.get_status(regex_group[-1])
+    status = self.api.get_status(regex_group[-1])
     if regex_group[-2]:
       author = regex_group[-2]
     else:
