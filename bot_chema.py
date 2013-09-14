@@ -12,6 +12,8 @@ from ircmessage import IRCMessage
 from plugins.baseactionplugin import BaseActionPlugin
 from plugins.texttriggerplugin import TextTriggerPlugin
 
+from db_mgr import DatabaseManager
+
 class ChemaBot(irc.IRCClient):
   """The main IRC bot class.
 
@@ -23,6 +25,8 @@ class ChemaBot(irc.IRCClient):
     self.nickname = nickname
     logging.basicConfig(level=logging.DEBUG)
     self.plugins_init()
+    #TODO: database location should be taken fron config file.
+    self.db_manager = DatabaseManager("bot.db")
 
   def plugins_init(self, is_reloading = False):
     if is_reloading:
@@ -48,11 +52,16 @@ class ChemaBot(irc.IRCClient):
     # List of the regexes and plugins
     self.text_trigger_plugins = []
     # TODO: specify categories of plugins with each trigger http://yapsy.sourceforge.net/PluginManager.html
+
     for pluginInfo in self.pm.getPluginsOfCategory("BaseActions"):
       self.action_plugins[pluginInfo.name] = pluginInfo.plugin_object
 
+    logging.debug("Action plugins: {0}".format(self.action_plugins))
+
     for pluginInfo in self.pm.getPluginsOfCategory("TextActions"):
       self.text_trigger_plugins.append((pluginInfo.plugin_object.trigger, pluginInfo.plugin_object))
+
+    logging.debug("Regex plugins: {0}".format(self.text_trigger_plugins))
 
 
   # Useful for debugging
@@ -124,7 +133,7 @@ class ChemaBot(irc.IRCClient):
       if plugin.synchronous:
         d = defer.maybeDeferred(plugin.execute, ircm, None)
       else:
-        d = threads.deferToThread(plugin.execute, ircm, None)
+        d = threads.deferToThread(plugin.execute, ircm, None, connection = self.db_manager)
       d.addCallback(self.emitMessage)
       return
 
@@ -175,11 +184,15 @@ class ChemaBotFactory(protocol.ClientFactory):
     print "connection failed:", reason
     reactor.stop()
 
-if __name__ == '__main__':
+def main():
   try:
-    # Load the configuration file
-    config = ConfigObj(sys.argv[1])
+    if len(sys.argv) < 2:
+      config = ConfigObj("./bot_devel.cf")
+    else:
+      # Load the configuration file
+      config = ConfigObj(sys.argv[1])
     # create factory protocol and application
+    print(sys.argv)
     bot_factory = ChemaBotFactory(config)
     observer = log.PythonLoggingObserver()
     observer.start()
@@ -187,6 +200,13 @@ if __name__ == '__main__':
                        config.as_int('irc_port'),
                        bot_factory)
     reactor.run()
-  except:
+  except Exception as e:
+    print(repr(e))
     print("Usage: python bot_chema.py config_file.cf")
     exit(1)
+
+
+if __name__ == '__main__':
+  main()
+
+main()

@@ -1,0 +1,11 @@
+[Core]
+Name = xkcd
+Module = xkcd
+
+[Documentation]
+Author = Wences Arana
+Version = 0.01
+Website = http://identi.ca/aranax
+Description = XKCD plugin
+
+

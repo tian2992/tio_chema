@@ -1,0 +1,11 @@
+[Core]
+Name = news
+Module = news
+
+[Documentation]
+Author = Wences Arana
+Version = 0.01
+Website = http://identi.ca/aranax
+Description = News plugin
+
+

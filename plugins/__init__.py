@@ -3,7 +3,7 @@ import sys
 import locale
 
 def  _(st):
-    self.loc_dir = "/home/aranax/Documentos/privado/tio_chema/locale/"
+    self.loc_dir = "/home/noahfx/tio_chema/tio_chema/locale/"
 
     try:
       self.trans = gettext.translation('es', self.loc_dir)

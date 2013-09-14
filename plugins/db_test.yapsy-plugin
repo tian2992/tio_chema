@@ -1,0 +1,9 @@
+[Core]
+Name = db_test
+Module = db_test
+
+[Documentation]
+Author = Sebastian Oliva
+Version = 0.1
+Website = http://sebastianoliva.com
+Description = DbTest
