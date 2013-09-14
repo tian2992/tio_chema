@@ -65,11 +65,7 @@ class PluginLastfm(BaseActionPlugin):
     """Gets the selected user track, returns an IRCMessage."""
     m = IRCMessage(user=ircMsg.user, channel=ircMsg.channel)
     user_s = ircMsg.msg.split(' ')[2]
-<<<<<<< HEAD
     user = self.last.get_user(user_s)
-=======
-    user = self.last.get_user(user_s)
->>>>>>> master
     logging.info("Getting last.fm user {0}".format(user_s))
     try:
       recent_tracks = user.get_recent_tracks()
@@ -107,9 +103,6 @@ class PluginLastfm(BaseActionPlugin):
     m.msg = u"Artists that match the tag {0} are: {1}".format(tag.get_name().decode("utf-8"), tag_artists_s)
     return m
 
-<<<<<<< HEAD
-    m.msg = u'User {0} is listening to: {1} - {2}'.format(user_s, last_track.title, last_track.artist.name)
-=======
 
   def get_tag_albums(self, ircMsg):
     """Gets the artists that match the tag, returns an IRCMessage."""
@@ -124,7 +117,6 @@ class PluginLastfm(BaseActionPlugin):
       return m
     tag_albums_s = u", ".join(map(lambda a: a[0].get_name(), tag_albums))
     m.msg = u"Albums that match the tag {0} are: {1}".format(tag.get_name().decode("utf-8"), tag_albums_s)
->>>>>>> master
     return m
 
 
