@@ -4,7 +4,7 @@ Module = twitterText
 
 [Documentation]
 Author = Sebastian Oliva
-Version = 0.2
+Version = 0.3
 Website = http://sebastianoliva.com
 Description = Plugin for Twitter link detection
 
