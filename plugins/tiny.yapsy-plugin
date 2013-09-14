@@ -1,6 +1,7 @@
 [Core]
 Name = tiny
 Module = tiny
+#Disabled = true
 
 [Documentation]
 Author = Wences Arana
