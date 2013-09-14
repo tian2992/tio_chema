@@ -43,8 +43,11 @@ class ChemaBot(irc.IRCClient):
 
     self.pm.collectPlugins()
     for pluginInfo in self.pm.getAllPlugins():
-      self.pm.activatePluginByName(pluginInfo.name)
-      logging.info("Plugin {0} activated".format(pluginInfo.name))
+      ## This stops the plugins marked as Disable from being activated.
+      ## Consider changing activations to category plugins load.
+      if (not pluginInfo.details.has_option("Core", "Disabled")):
+        self.pm.activatePluginByName(pluginInfo.name)
+        logging.info("Plugin {0} activated".format(pluginInfo.name))
 
     # TODO: create a list of localized ("_()") plugin triggers
     # Create a dictionary of the names of all the plugins
@@ -54,12 +57,14 @@ class ChemaBot(irc.IRCClient):
     # TODO: specify categories of plugins with each trigger http://yapsy.sourceforge.net/PluginManager.html
 
     for pluginInfo in self.pm.getPluginsOfCategory("BaseActions"):
-      self.action_plugins[pluginInfo.name] = pluginInfo.plugin_object
+      if (not pluginInfo.details.has_option("Core", "Disabled")):
+        self.action_plugins[pluginInfo.name] = pluginInfo.plugin_object
 
     logging.debug("Action plugins: {0}".format(self.action_plugins))
 
     for pluginInfo in self.pm.getPluginsOfCategory("TextActions"):
-      self.text_trigger_plugins.append((pluginInfo.plugin_object.trigger, pluginInfo.plugin_object))
+      if (not pluginInfo.details.has_option("Core", "Disabled")):
+        self.text_trigger_plugins.append((pluginInfo.plugin_object.trigger, pluginInfo.plugin_object))
 
     logging.debug("Regex plugins: {0}".format(self.text_trigger_plugins))
 
