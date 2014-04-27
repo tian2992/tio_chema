@@ -1,0 +1,8 @@
+twisted
+yapsy
+configobj
+tweepy>=2.3
+praw
+beautifulsoup4
+pylast
+requests>=2
