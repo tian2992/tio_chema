@@ -52,7 +52,7 @@ class CuatroChan(BaseActionPlugin):
         page = random.choice( data )
         threads = random.choice( page[ 'threads' ] )
         id_thread = threads[ 'no' ]
-        respuesta = '4chan thread http://4chan.org/{0}/{1}'.format( board, id_thread )
+        respuesta = '4chan thread http://4chan.org/thread/{0}/{1}'.format( board, id_thread )
       except:
         logging.exception("Get thread fail.")
         respuesta = 'Fallo el api 4chanesco'
