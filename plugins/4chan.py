@@ -12,7 +12,7 @@ class CuatroChan(BaseActionPlugin):
   def __init__(self):
     BaseActionPlugin.__init__(self)
     self.synchronous = False
-    self.url = 'http://api.4chan.org/'
+    self.url = 'https://a.4cdn.org/'
     self.function_dict = {
                           "default": self.handle_get_random_thread,
                           "random_thread": self.handle_get_random_thread,
