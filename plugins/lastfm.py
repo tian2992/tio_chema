@@ -30,6 +30,25 @@ class PluginLastfm(BaseActionPlugin):
   def get_artist_tracks(self, ircMsg):
     """Gets the selected user track, returns an IRCMessage"""
     m = IRCMessage(user=ircMsg.user, channel=ircMsg.channel)
+    artist_s = ircMsg.msg.split(' ')[2]
+    artist = self.last.get_artist(artist_s)
+    logging.info("Getting last.fm artist {0}".format(artist_s))
+    try:
+      similar_artists = artist.get_similar()
+    except:
+      m.msg = "No artist with that name"
+      return m
+
+    similar_artists_s = ", ".join(map(lambda a: a.get_name(), similar_artists))
+
+    m.msg = u"Artists similar to {0} are: {1}".format(artist_s, similar_artists_s)
+
+    return m
+
+
+  def get_artist_tracks(self, ircMsg):
+    """Gets the selected user track, returns an IRCMessage"""
+    m = IRCMessage(user=ircMsg.user, channel=ircMsg.channel)
     artist_s = " ".join(ircMsg.msg.split(' ')[2::])
     artist = self.last.get_artist(artist_s)
     logging.info("Getting last.fm artist {0}".format(artist_s))

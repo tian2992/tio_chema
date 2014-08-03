@@ -8,8 +8,9 @@ from ircmessage import IRCMessage
 from plugins.lengua import _
 from bs4 import BeautifulSoup
 
-class Tiny(BaseActionPlugin):
-  def __init_(self):
+
+class Tiny(BaseActionPlugin, TextTriggerPlugin ):
+  def __init__(self):
     self.trigger = re.compile( '(http|https)://([A-Za-z0-9])+(.[a-zA-Z]*)+(/[a-zA-Z0-9_%=\?&.])*' )
     BaseActionPlugin.__init__(self)
     TextTriggerPlugin.__init__(self)
@@ -32,18 +33,18 @@ class Tiny(BaseActionPlugin):
 
       f = requests.get( url, params=payload)
       data = f.text
-      
+
       if data == '' :
           respuesta = 'No se pudo transformar la url marica'
       else:
           respuesta = data
-  
+
       m.msg = respuesta
       m.channel = ircMsg.channel
       m.user = user
       m.directed = True
       return m
-      
+
 
   def execute(self, ircMsg, userRole, result):
       m.msg = 'holis'

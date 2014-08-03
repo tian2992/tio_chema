@@ -43,3 +43,8 @@ class IRCMessage():
       return u"{0}: {1}".format(unicode(usr), unicode(self.msg))
     else:
       return unicode(self.msg)
+
+  @property
+  def arguments(self):
+    split_message = self.msg.split()
+    return split_message[1::]

@@ -4,7 +4,7 @@ Module = wiki
 
 [Documentation]
 Author = Wences Arana
-Version = 0.01
+Version = 0.02
 Website = http://identi.ca/aranax
 Description = Wikipedia plugin
 
