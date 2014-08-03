@@ -9,6 +9,6 @@ Website = http://josueortega.org
 Description = Plugin for Twitter link detection based on twitterText using Twython
 
 [Auth]
-app_key = lCqs9Mv9eSvKNqGmf0f0vq6bx
-app_secret = h0l2mWEE2uL0nDdhDZcD35aflXLkiXeLCL8akRpNd6MLJUz0jd
-access_token = 12470382-HYKFDwgxmVuA1YMpYjBccxi9BHvUHnxPd1PUXsPZc
+app_key = 
+app_secret = 
+access_token = 
