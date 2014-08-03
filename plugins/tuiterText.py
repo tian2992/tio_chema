@@ -9,7 +9,6 @@ from plugins.texttriggerplugin import TextTriggerPlugin
 
 class TuiterText(TextTriggerPlugin):
 
-
     def __init__(self):
         self.trigger = re.compile(
             """((http|https)://(twitter.com)/(([A-Za-z0-9_]{1,15})/"""\
@@ -17,8 +16,7 @@ class TuiterText(TextTriggerPlugin):
             re.IGNORECASE
         )
 
-
-        tuiter_conf = self.get_configuration('tuiterText.yapsy-plugin',
+        tuiter_conf = self.get_configuration('plugins/tuiterText.yapsy-plugin',
                                              [
                                                  {
                                                      "section" : "Auth",
@@ -33,7 +31,6 @@ class TuiterText(TextTriggerPlugin):
 
         self.api = Twython(tuiter_conf.get("app_key"),
                            tuiter_conf.get("app_secret"))
-
 
     def get_configuration(self, config_file_string, attribute_dict_list = [{}]):
         """
@@ -59,14 +56,7 @@ class TuiterText(TextTriggerPlugin):
         except Exception as e:
             logging.error("Error when parsing identica plugin info.", exc_info=e)
 
-            return conf_results
-
-
-    def get_status(self, user, status_id):
-        if user is not None:
-            result = api.show_status(user, status_id)
-            return user, result[0].get("text")
-        return None, None
+        return conf_results
 
     def execute(self, ircMsg, userRole, regex_groups):
         m = IRCMessage()
@@ -76,7 +66,7 @@ class TuiterText(TextTriggerPlugin):
         status = self.api.show_status(id = regex_group[-1])
         author = regex_group[-2]
 
-        m.msg = u"@{0}: {1}".format(author, status.text)
+        m.msg = u"@{0}: {1}".format(author, status.get("text"))
         m.user = ircMsg.user
 
         return m
