@@ -8,9 +8,9 @@ Installation
 
 Library depends
 
-* python-twisted
 * python-yapsy
 * python-tweepy
+* python-twython
 
     bash devel_setup.sh
 
