@@ -1,0 +1,14 @@
+[Core]
+Name = tuiter
+Module = tuiter
+
+[Documentation]
+Author = Josue Ortega
+Version = 0.1
+Website = http://josueortega.org
+Description = Plugin for Twitter using Twython
+
+[Auth]
+app_key = 
+app_secret = 
+access_token = 
