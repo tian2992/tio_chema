@@ -1,0 +1,9 @@
+[Core]
+Name = duckduckgo
+Module = duckduckgo
+
+[Documentation]
+Author = Josue Ortega
+Version = 0.01
+Website = josueortega.org
+Description = Plugin that search for stuff in duckduckgo
