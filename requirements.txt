@@ -7,3 +7,4 @@ beautifulsoup4
 pylast
 requests>=2
 twython
+duckduckgo
