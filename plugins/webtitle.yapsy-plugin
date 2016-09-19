@@ -1,0 +1,9 @@
+[Core]
+Name = webitle
+Module = webtitle
+
+[Documentation]
+Author = Josue Ortega
+Version = 0.1
+Website = http://josueortega.org
+Description = Plugin for get the title for any web page in the log
