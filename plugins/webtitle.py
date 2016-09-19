@@ -21,10 +21,15 @@ class WebTitle(TextTriggerPlugin):
 
     def execute(self, ircMsg, userRole, regex_groups):
         try:
+
+            url = regex_groups[0][0]
             msg = IRCMessage()
             msg.channel = ircMsg.channel
-            print(regex_groups)
-            msg.msg = self.get_title(regex_groups[0][0])
+            msg.msg = " - ".join([
+                self.get_title(url),
+                url
+            ])
+
         except:
             logging.error(":(")
         return msg
