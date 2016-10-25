@@ -24,10 +24,7 @@ class WebTitle(TextTriggerPlugin):
             url = regex_groups[0][0]
             msg = IRCMessage()
             msg.channel = ircMsg.channel
-            msg.msg = " - ".join([
-                self.get_title(url),
-                url
-            ])
+            msg.msg = self.get_title(url)
         except:
             logging.error(":(")
 
