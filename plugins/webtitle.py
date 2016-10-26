@@ -9,25 +9,23 @@ from plugins.texttriggerplugin import TextTriggerPlugin
 class WebTitle(TextTriggerPlugin):
     def __init__(self):
         self.trigger = re.compile(
-            """((http|https)://((?!twitter))\S*)""",
+            """((http|https)://((?!(twitter|tiny)))\S*)""",
             re.IGNORECASE
         )
 
-    def get_title(self, url):
+    @staticmethod
+    def get_title(url):
         _title_re = re.compile("<title>(.+?)</title>")
         _response = urllib2.urlopen(url)
         content = _response.read()
-        return _title_re.search(content).group(1)
+        return unicode(_title_re.search(content).group(1), "utf-8")
 
     def execute(self, ircMsg, userRole, regex_groups):
         try:
             url = regex_groups[0][0]
             msg = IRCMessage()
             msg.channel = ircMsg.channel
-            msg.msg = " - ".join([
-                self.get_title(url),
-                url
-            ])
+            msg.msg = WebTitle.get_title(url)
         except:
             logging.error(":(")
 
