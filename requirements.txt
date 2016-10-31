@@ -8,3 +8,4 @@ pylast
 requests>=2
 twython
 duckduckgo
+hy
