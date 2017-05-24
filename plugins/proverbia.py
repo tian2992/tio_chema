@@ -47,7 +47,7 @@ class PluginPing(BaseActionPlugin):
     cita = citas[random.randint(0,len(citas)-1)].text
     autor = sopa_de_citas.find('h1').text.strip()
     profesion = sopa_de_citas.find(id='bio').text.strip()
-    texto = cita + ' - ' + autor + ", " + profesion
+    texto = cita + ' –' + autor + ", " + profesion
     texto = texto.encode("ascii", errors="ignore")
     m.channel = ircMsg.channel
     m.user = ircMsg.user
