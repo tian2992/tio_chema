@@ -18,7 +18,7 @@ class PluginPing(BaseActionPlugin):
     # Genera URL de letras
     letrarandom = lambda : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[random.randint(0,25)]
     # Parsea html de una URL
-    sopa = lambda url: BeautifulSoup(requests.get(url).text, 'html.parser') 
+    sopa = lambda url: BeautifulSoup(requests.get(url).text, 'html.parser', from_encoding="utf-8") 
     # URL random para encontrar autores
     urlautoresrandom = "http://www.proverbia.net/citasautores.asp?letra="+letrarandom()
     # Sopa de autores
@@ -48,8 +48,9 @@ class PluginPing(BaseActionPlugin):
     autor = sopa_de_citas.find('h1').text.strip()
     profesion = sopa_de_citas.find(id='bio').text.strip()
     texto = cita + ' - ' + autor + ", " + profesion
+    texto = texto.encode("ascii", errors="ignore")
     m.channel = ircMsg.channel
-    m.user = user
+    m.user = ircMsg.user
     m.directed = True
     logging.debug("Proverbia: {0}".format(texto))
     m.msg = texto
