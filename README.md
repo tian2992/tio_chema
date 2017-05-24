@@ -20,6 +20,10 @@ Usage
 
     source venv/bin/activate
 
+### Install the dependencies
+
+    pip install -r requirements.txt
+
 ### Edit the bot.cf file to your convenience
 
 
