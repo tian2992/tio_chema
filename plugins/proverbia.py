@@ -19,7 +19,7 @@ class ProverbiaPlugin(BaseActionPlugin):
     # Genera URL de letras
     letrarandom = lambda : 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'[random.randint(0,25)]
     # Parsea html de una URL
-    sopa = lambda url: BeautifulSoup(requests.get(url).text, 'html.parser', from_encoding="utf-8")
+    sopa = lambda url: BeautifulSoup(requests.get(url).content, 'html.parser')# , from_encoding="utf-8")
     # URL random para encontrar autores
     urlautoresrandom = "http://www.proverbia.net/citasautores.asp?letra="+letrarandom()
     # Sopa de autores
@@ -39,20 +39,19 @@ class ProverbiaPlugin(BaseActionPlugin):
         npage_random = random.randint(1,numero_de_paginas)
 
         ## Encontrar pagina
-        link_a_pagina = link_a_autor + "&page=" + str(npage_random)
+        link_a_pagina = link_a_autor + "&page=" + unicode(npage_random)
         logging.debug("Link a pagina: %s" % link_a_pagina)
 
     # Con la URL de la pagina, formarla
     sopa_de_citas = sopa(link_a_pagina)
     citas = sopa_de_citas.find_all('blockquote')
-    cita = citas[random.randint(0,len(citas)-1)].text
+    cita = citas[random.randint(0,len(citas)-1)].text.strip()
     autor = sopa_de_citas.find('h1').text.strip()
     profesion = sopa_de_citas.find(id='bio').text.strip()
-    texto = cita + ' –' + autor + ", " + profesion
-    texto = texto.encode("ascii", errors="ignore")
+    texto = u"« {cita} » - {autor} : {profesion}".format(cita=cita, autor=autor, profesion=profesion)
     m.channel = ircMsg.channel
     m.user = ircMsg.user
     m.directed = True
-    logging.debug("Proverbia: {0}".format(texto))
+    logging.debug(u"Proverbia: {0}".format(texto))
     m.msg = texto
     return m
