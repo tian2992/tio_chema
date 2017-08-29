@@ -6,6 +6,8 @@ from ircmessage import IRCMessage
 
 from plugins.texttriggerplugin import TextTriggerPlugin
 
+MAXCHARS = 120
+
 class WebTitle(TextTriggerPlugin):
     def __init__(self):
         self.trigger = re.compile(
@@ -18,7 +20,7 @@ class WebTitle(TextTriggerPlugin):
         _title_re = re.compile("<title>(.+?)</title>")
         _response = urllib2.urlopen(url)
         content = _response.read()
-        return unicode(_title_re.search(content).group(1), "utf-8")
+        return unicode(_title_re.search(content).group(1)[:MAXCHARS], "utf-8")
 
     def execute(self, ircMsg, userRole, regex_groups):
         try:
