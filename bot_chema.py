@@ -14,6 +14,9 @@ from plugins.texttriggerplugin import TextTriggerPlugin
 
 from db_mgr import DatabaseManager
 
+# global constant
+RE_TYPE = re.compile('').__class__
+
 class ChemaBot(irc.IRCClient):
   """The main IRC bot class.
 
@@ -98,7 +101,7 @@ class ChemaBot(irc.IRCClient):
 
     message = ircm.msg
     for (text_trigger, plugin) in self.text_trigger_plugins:
-      if isinstance(text_trigger, type(re.compile(''))):
+      if isinstance(text_trigger, RE_TYPE):
         result = text_trigger.findall(message)
       #TODO: specify the info sent to the trigger.
       else:
