@@ -28,8 +28,6 @@ class ChemaBot(irc.IRCClient):
     self.nickname = nickname
     logging.basicConfig(level=logging.DEBUG)
     self.plugins_init()
-    #TODO: database location should be taken fron config file.
-    self.db_manager = DatabaseManager("bot.db")
 
   def plugins_init(self, is_reloading = False):
     if is_reloading:
@@ -63,20 +61,18 @@ class ChemaBot(irc.IRCClient):
       if (not pluginInfo.details.has_option("Core", "Disabled")):
         self.action_plugins[pluginInfo.name] = pluginInfo.plugin_object
 
-    logging.debug("Action plugins: {0}".format(self.action_plugins))
+
 
     for pluginInfo in self.pm.getPluginsOfCategory("TextActions"):
       if (not pluginInfo.details.has_option("Core", "Disabled")):
         self.text_trigger_plugins.append((pluginInfo.plugin_object.trigger, pluginInfo.plugin_object))
 
-    logging.debug("Regex plugins: {0}".format(self.text_trigger_plugins))
-
+      self.listPlugins()
 
   # Useful for debugging
   def listPlugins(self):
-      print 'Plugins:'
-      for item in self.plugins:
-          print item
+      logging.debug("Action plugins: {0}".format(self.action_plugins))
+      logging.debug("Regex plugins: {0}".format(self.text_trigger_plugins))
 
   def signedOn(self):
     """Called when bot has succesfully signed on to server."""
@@ -96,10 +92,22 @@ class ChemaBot(irc.IRCClient):
     else:
       self.msg(message.channel, message.render().encode('utf-8'))
 
+  def __executeCommand(self, plugin, ircm, result=None):
+      """Executes a plugin trigger with a given message obj."""
+      d = threads.deferToThread(plugin.execute, ircm, None, regex_group=result)
+      d.addCallback(self.emitMessage)
+      if plugin.synchronous:
+        d = defer.maybeDeferred(plugin.execute, ircm, None)
+      else:
+        d = threads.deferToThread(plugin.execute, ircm, None, regex_group=result, connection = self.db_manager)
+      d.addCallback(self.emitMessage)
+
   def _parseAndExecute(self, ircm):
     """Recieves an IRCMessage, detects the command and triggers the appropiate plugin."""
 
     message = ircm.msg
+
+    ## Check for triggered plugins
     for (text_trigger, plugin) in self.text_trigger_plugins:
       if isinstance(text_trigger, RE_TYPE):
         result = text_trigger.findall(message)
@@ -107,23 +115,27 @@ class ChemaBot(irc.IRCClient):
       else:
         #trigger.fire(message, *args, **kwargs)
         result = text_trigger.fire(ircm)
-
       if result:
-        d = threads.deferToThread(plugin.execute, ircm, None, result)
-        d.addCallback(self.emitMessage)
+        self.__executeCommand(plugin, ircm, result)
+        return
 
     ## Main Command trigger is commonly '!'
     trigger = self.factory.main_trigger
+
+    ## On Channel Calls, e.g. botname or triggered
     if message.startswith(trigger) or message.startswith(self.nickname):
-      word_list = message.split(' ')
-      if message.startswith(trigger):
-        command = word_list[0].lstrip(trigger)
-      elif message.startswith(self.nickname):
-        try:
+      try:
+        word_list = ircm.tokens
+        if message.startswith(trigger):
+          command = word_list[0].lstrip(trigger)
+        elif message.startswith(self.nickname):
           command = word_list[1].strip()
-        except IndexError:
-          logging.warning('Invalid call: "{0}"'.format(ircm.render()))
-          return
+      except IndexError:
+        logging.warning('Invalid call: "{0}"'.format(ircm.render()))
+        return
+
+      if message.directed:
+        command = ircm.tokens[0] # Let's try be optimists
 
       ## TODO: Reload should be dependant on userRole
       ## TODO: Localize
@@ -138,11 +150,7 @@ class ChemaBot(irc.IRCClient):
         logging.warning("Command {0} missing".format(command))
         return
 
-      if plugin.synchronous:
-        d = defer.maybeDeferred(plugin.execute, ircm, None)
-      else:
-        d = threads.deferToThread(plugin.execute, ircm, None, connection = self.db_manager)
-      d.addCallback(self.emitMessage)
+
       return
 
   def privmsg(self, user, channel, msg):
@@ -160,7 +168,7 @@ class ChemaBot(irc.IRCClient):
 
     """
 
-    message = IRCMessage(channel, msg, user)
+    message = IRCMessage(channel, msg, user, directed = True)
 
     #TODO: add logging
     #print message

@@ -27,14 +27,22 @@ class DatabaseManager:
 
 
 class Factoider():
+    '''Data accesor object, gives "facts", a.k.a. alternative truths.
 
+    Factoider instances share db access.
+    '''
+    #TODO: database location should be taken fron config file.
+    # dbman is a class property of Factoider holding the db connection,
+    # it is shared across Factoider instances
     dbman = DatabaseManager("./db.sql3")
 
     def __init__(self):
-        Factoider.dbman.c.execute("create table if not exists logping(user, d);")
+        ## PLZ FIXME
+        # Should not be part of the objects initialization.
+        Factoider.dbman.c.execute("create table if not exists log_ping(user, d);")
 
-    def put(self, key, data):
-        cmd = "INSERT INTO logping(user, d) VALUES (? , ?);"
+    def put_ping(self, key, data):
+        cmd = "INSERT INTO log_ping(user, d) VALUES (? , ?);"
         logging.info("cmd {cmd} + {key} : {data}".format(cmd=cmd, key=key, data=data))
         try:
             with Factoider.dbman.conn:

@@ -48,6 +48,10 @@ class IRCMessage():
       return unicode(self.msg)
 
   @property
+  def tokens(self):
+    return self.msg.split()
+
+  @property
   def arguments(self):
     split_message = self.msg.split()
     return split_message[1::]
