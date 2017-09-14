@@ -1,6 +1,7 @@
 from plugins.baseactionplugin import BaseActionPlugin
 from ircmessage import IRCMessage
 import logging
+import db_mgr
 
 class PluginPing(BaseActionPlugin):
 
@@ -11,6 +12,7 @@ class PluginPing(BaseActionPlugin):
     self.counter = 0
     self.last_user = ""
     self.synchronous = True
+    self.db = db_mgr.Factoider()
 
   def execute(self, ircMsg, userRole, *args, **kwargs):
     user = ircMsg.user
@@ -20,6 +22,7 @@ class PluginPing(BaseActionPlugin):
       self.counter = 0
       self.last_user = user
 
+    self.db.put_ping(unicode(user), ircMsg.t)
     m = IRCMessage()
     if self.counter > self.threshold:
       #TODO: localize

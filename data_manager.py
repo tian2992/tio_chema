@@ -1,5 +1,6 @@
 import sqlite3
 import sys
+import logging
 
 class DatabaseManager:
 
@@ -25,4 +26,19 @@ class DatabaseManager:
 
 
 
+class Factoider():
 
+    dbman = DatabaseManager("./db.sql3")
+
+    def __init__(self):
+        Factoider.dbman.c.execute("create table if not exists logping(user, d);")
+
+    def put(self, key, data):
+        cmd = "INSERT INTO logping(user, d) VALUES (? , ?);"
+        logging.info("cmd {cmd} + {key} : {data}".format(cmd=cmd, key=key, data=data))
+        try:
+            with Factoider.dbman.conn:
+                Factoider.dbman.conn.execute(cmd, (key, data))
+        except sqlite3.IntegrityError:
+            logging.error("HALP")
+        #curs.execute(cmd, (name, id))
