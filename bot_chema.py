@@ -103,6 +103,7 @@ class ChemaBot(irc.IRCClient):
   def _parseAndExecute(self, ircm):
     """Recieves an IRCMessage, detects the command and triggers the appropiate plugin."""
 
+    command = False
     message = ircm.msg
 
     ## Check for triggered plugins
@@ -131,25 +132,28 @@ class ChemaBot(irc.IRCClient):
       except IndexError:
         logging.warning('Invalid call: "{0}"'.format(ircm.render()))
         return
-
-      if message.directed:
+    ## On PMs
+    if ircm.directed:
         command = ircm.tokens[0] # Let's try be optimists
 
-      ## TODO: Reload should be dependant on userRole
-      ## TODO: Localize
-      if command == "reload":
+    if not command:
+        # logging.info("no command found")
+        return
+
+    ## TODO: Reload should be dependant on userRole
+    ## TODO: Localize
+    if command == "reload":
         self.plugins_init(is_reloading=True)
         return
 
-      ## TODO: Consider sending the split word list.
-      try:
+    # So we fetch a plugin
+    try:
         plugin = self.action_plugins[command]
-      except KeyError:
-        logging.warning("Command {0} missing".format(command))
+    except KeyError:
+        logging.warning("Command {0} not found.".format(command))
         return
 
-
-      return
+    self.__executeCommand(plugin, ircm)
 
   def privmsg(self, user, channel, msg):
     """Gets called when the bot receives a message in a channel or via PM.
@@ -166,11 +170,12 @@ class ChemaBot(irc.IRCClient):
 
     """
 
-    message = IRCMessage(channel, msg, user, directed = True)
+    directed = False
+    if channel == self.factory.nick:
+        directed = True
+    message = IRCMessage(channel, msg, user, directed=directed)
 
-    #TODO: add logging
-    #print message
-
+    # logging.info(message)
     #TODO: add channel trigger plugins (user defined actions)
 
     self._parseAndExecute(message)
@@ -184,9 +189,10 @@ class ChemaBotFactory(protocol.ClientFactory):
     self.channel = "#"+self.config['channel']
     self.filename = self.config['log_file']
     self.main_trigger = self.config['main_command_trigger']
+    self.nick = self.config['nickname']
 
   def buildProtocol(self, addr):
-    p = ChemaBot(self.config['nickname'])
+    p = ChemaBot(self.nick)
     p.factory = self
     return p
 
@@ -205,8 +211,7 @@ def main():
     else:
       # Load the configuration file
       config = ConfigObj(sys.argv[1])
-    # create factory protocol and application
-    print(sys.argv)
+    # Factory protocol and application
     bot_factory = ChemaBotFactory(config)
     observer = log.PythonLoggingObserver()
     observer.start()
@@ -222,5 +227,3 @@ def main():
 
 if __name__ == '__main__':
   main()
-
-main()
