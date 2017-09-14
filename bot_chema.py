@@ -94,12 +94,10 @@ class ChemaBot(irc.IRCClient):
 
   def __executeCommand(self, plugin, ircm, result=None):
       """Executes a plugin trigger with a given message obj."""
-      d = threads.deferToThread(plugin.execute, ircm, None, regex_group=result)
-      d.addCallback(self.emitMessage)
       if plugin.synchronous:
-        d = defer.maybeDeferred(plugin.execute, ircm, None)
+        d = defer.maybeDeferred(plugin.execute, ircm, None, regex_group=result)
       else:
-        d = threads.deferToThread(plugin.execute, ircm, None, regex_group=result, connection = self.db_manager)
+        d = threads.deferToThread(plugin.execute, ircm, None, regex_group=result)
       d.addCallback(self.emitMessage)
 
   def _parseAndExecute(self, ircm):
