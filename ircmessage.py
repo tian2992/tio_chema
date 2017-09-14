@@ -1,3 +1,5 @@
+import datetime
+
 
 class IRCMessage():
   """Defines an IRC message."""
@@ -7,6 +9,7 @@ class IRCMessage():
     #if not channel.startswith("#"):
     #  self.channel = "#" + channel
     #else:
+    self.t = datetime.datetime.now()
     self.channel = channel
 
     self.msg = msg
