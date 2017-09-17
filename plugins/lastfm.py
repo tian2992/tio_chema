@@ -83,7 +83,7 @@ class PluginLastfm(BaseActionPlugin):
 
     tags_string =  u" , ".join([tag[0].name for tag in last_track.get_top_tags(4)])
 
-    m.msg = u'User {0} is listening to: {1} - {2}: tags [ {3} ]'.format(user_s, last_track.title,
+    m.msg = u'User {0} is listening to: {1} - {2}: tags [ {3} ]'.format(user_fm, last_track.title,
       last_track.artist.name, tags_string)
     return m
 
