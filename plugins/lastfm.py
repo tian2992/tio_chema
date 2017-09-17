@@ -65,7 +65,7 @@ class PluginLastfm(BaseActionPlugin):
     """Gets the selected user track, returns an IRCMessage."""
     m = IRCMessage(user=ircMsg.user, channel=ircMsg.channel)
     user_fm = ircMsg.tokens[-1]
-    user = self.last.get_user(user_s)
+    user = self.last.get_user(user_fm)
     logging.info("Getting last.fm user {0}".format(user_fm))
     try:
       recent_tracks = user.get_recent_tracks()
