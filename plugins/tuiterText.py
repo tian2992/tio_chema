@@ -33,13 +33,13 @@ class TuiterText(TextTriggerPlugin):
         self.api = Twython(tuiter_conf.get("app_key"),
                            tuiter_conf.get("app_secret"))
 
-    def execute(self, ircMsg, userRole, regex_groups):
+    def execute(self, ircMsg, userRole, regex_group):
         m = IRCMessage()
         m.channel = ircMsg.channel
-        regex_group = regex_groups[0]
+        r_group = regex_group[0]
 
-        status = self.api.show_status(id = regex_group[-1])
-        author = regex_group[-2]
+        status = self.api.show_status(id = r_group[-1])
+        author = r_group[-2]
 
         m.msg = u"@{0}: {1}".format(author, status.get("text"))
         m.user = ircMsg.user

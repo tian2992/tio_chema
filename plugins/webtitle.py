@@ -22,9 +22,9 @@ class WebTitle(TextTriggerPlugin):
         content = _response.read()
         return unicode(_title_re.search(content).group(1)[:MAXCHARS], "utf-8")
 
-    def execute(self, ircMsg, userRole, regex_groups):
+    def execute(self, ircMsg, userRole, regex_group):
         try:
-            url = regex_groups[0][0]
+            url = regex_group[0][0]
             msg = IRCMessage()
             msg.channel = ircMsg.channel
             msg.msg = WebTitle.get_title(url)
