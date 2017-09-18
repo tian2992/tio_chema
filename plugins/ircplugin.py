@@ -1,4 +1,5 @@
 from yapsy.IPlugin import IPlugin
+import logging
 
 class IRCPlugin(IPlugin):
 
@@ -31,6 +32,6 @@ class IRCPlugin(IPlugin):
               conf_results[di["conf"]] = parser.get(di["section"], di["conf"])
 
       except Exception as e:
-          logging.error("Error when parsing identica plugin info.", exc_info=e)
+          logging.error("Error when parsing plugin info.", exc_info=e)
 
       return conf_results

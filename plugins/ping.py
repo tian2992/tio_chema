@@ -12,7 +12,7 @@ class PluginPing(BaseActionPlugin):
     self.counter = 0
     self.last_user = ""
     self.synchronous = False
-    self.db = db_mgr.Factoider()
+    self.db = data_manager.Factoider()
 
   def execute(self, ircMsg, userRole, *args, **kwargs):
     user = ircMsg.user

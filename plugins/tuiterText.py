@@ -10,6 +10,7 @@ from plugins.texttriggerplugin import TextTriggerPlugin
 class TuiterText(TextTriggerPlugin):
 
     def __init__(self):
+        TextTriggerPlugin.__init__(self)
         self.trigger = re.compile(
             """((http|https)://(twitter.com)/(([A-Za-z0-9_]{1,15})/"""\
             """status)/([\d]*))""",
