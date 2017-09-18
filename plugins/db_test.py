@@ -3,6 +3,7 @@ from ircmessage import IRCMessage
 import sqlite3
 import logging
 import random
+import data_manager
 
 class DB_Test(BaseActionPlugin):
 
@@ -10,11 +11,12 @@ class DB_Test(BaseActionPlugin):
   def __init__(self):
     BaseActionPlugin.__init__(self)
     self.synchronous = False
+    self.d = data_manager
 
   def execute(self, ircMsg, userRole, *args, **kwargs):
     user = ircMsg.user
     m = IRCMessage()
-    conn = kwargs["connection"]
+
     m.msg = unicode()
     all_rows = conn.execute("select * from users").fetchall()
     choice = random.choice(all_rows)
