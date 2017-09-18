@@ -40,6 +40,20 @@ class Factoider():
         ## PLZ FIXME
         # Should not be part of the objects initialization.
         Factoider.dbman.c.execute("create table if not exists log_ping(user, d);")
+        Factoider.dbman.c.execute("CREATE TABLE IF NOT EXISTS facts (tipe TEXT, date DATE, fact TEXT NOT NULL, fulltext TEXT, who TEXT, PRIMARY KEY (fact));")
+        Factoider.dbman.c.execute("CREATE TABLE IF NOT EXISTS actions (id TEXT, date DATE, who TEXT, action TEXT, PRIMARY KEY(id));")
+        Factoider.dbman.c.execute("CREATE TABLE IF NOT EXISTS users (nick TEXT, seen DATE, command TEXT, last TEXT, perm TEXT, karma NUM, pass TEXT, pipianlvl NUM);")
+
+    def get_factz(self, key, data):
+        cmd = "SELECT * FROM facts WHERE tipe = 'fact' and fact = ?;"
+        logging.info("cmd {cmd} + {key} : {data}".format(cmd=cmd, key=key, data=data))
+        try:
+            with Factoider.dbman.conn:
+                Factoider.dbman.conn.execute(cmd, (key, data))
+                return Factoider.dbman.conn.fetchall()
+        except sqlite3.IntegrityError:
+            logging.error("HALP")
+
 
     def put_ping(self, key, data):
         cmd = "INSERT INTO log_ping(user, d) VALUES (? , ?);"

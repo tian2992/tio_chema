@@ -1,7 +1,7 @@
 from plugins.baseactionplugin import BaseActionPlugin
 from ircmessage import IRCMessage
 import logging
-import db_mgr
+import data_manager
 
 class PluginPing(BaseActionPlugin):
 
