@@ -1,5 +1,6 @@
 from yapsy.IPlugin import IPlugin
 import logging
+from ConfigParser import SafeConfigParser
 
 class IRCPlugin(IPlugin):
 
