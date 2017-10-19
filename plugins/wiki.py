@@ -40,10 +40,12 @@ class Wiki(BaseActionPlugin):
       data = f.text
       try:
         soup = BeautifulSoup(data, "html.parser")
-        tags = soup.find_all('div', attrs={'class' : 'mw-parser-output' }).find('p')
-        blend = " ".join([tagu.text for tagu in tags])
-        p = blend[:250]
-      except:
+        basediv = soup.find('div', attrs={'class' : 'mw-parser-output' })
+        peetexts = [pees.text for pees in basediv.findChildren('p')]
+        basetext = " ".join(peetexts)
+        p = basetext[:350]
+      except Exception as e:
+        logging.exception("Wiki: An error ocurred")
         ircMsg.msg = "Wiki: An error ocurred."
         return ircMsg
 
