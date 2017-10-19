@@ -10,6 +10,7 @@ MAXCHARS = 120
 
 class WebTitle(TextTriggerPlugin):
     def __init__(self):
+        TextTriggerPlugin.__init__(self)
         self.trigger = re.compile(
             """((http|https)://((?!(twitter|tiny)))\S*)""",
             re.IGNORECASE
