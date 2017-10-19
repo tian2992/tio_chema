@@ -41,7 +41,7 @@ class Wiki(BaseActionPlugin):
       try:
         soup = BeautifulSoup( data )
         tag = soup.find_all('div', attrs={'class' : 'mw-content-ltr' } )
-        p = tag[0].p.text[:250]
+        p = tag.text[:250]
       except:
         ircMsg.msg = "Wiki: An error ocurred."
         return ircMsg
@@ -51,4 +51,3 @@ class Wiki(BaseActionPlugin):
       m.user = user
       m.directed = True
       return m
-
