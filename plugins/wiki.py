@@ -39,9 +39,10 @@ class Wiki(BaseActionPlugin):
       f = requests.get(url)
       data = f.text
       try:
-        soup = BeautifulSoup( data )
-        tag = soup.find_all('div', attrs={'class' : 'mw-content-ltr' } )
-        p = tag.text[:250]
+        soup = BeautifulSoup(data, "html.parser")
+        tags = soup.find_all('div', attrs={'class' : 'mw-parser-output' }).find('p')
+        blend = " ".join([tagu.text for tagu in tags])
+        p = blend[:250]
       except:
         ircMsg.msg = "Wiki: An error ocurred."
         return ircMsg
