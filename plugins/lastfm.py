@@ -64,9 +64,9 @@ class PluginLastfm(BaseActionPlugin):
   def get_user_track(self, ircMsg):
     """Gets the selected user track, returns an IRCMessage."""
     m = IRCMessage(user=ircMsg.user, channel=ircMsg.channel)
-    user_s = ircMsg.msg.split(' ')[2]
-    user = self.last.get_user(user_s)
-    logging.info("Getting last.fm user {0}".format(user_s))
+    user_fm = ircMsg.tokens[-1]
+    user = self.last.get_user(user_fm)
+    logging.info("Getting last.fm user {0}".format(user_fm))
     try:
       recent_tracks = user.get_recent_tracks()
     except:
@@ -83,7 +83,7 @@ class PluginLastfm(BaseActionPlugin):
 
     tags_string =  u" , ".join([tag[0].name for tag in last_track.get_top_tags(4)])
 
-    m.msg = u'User {0} is listening to: {1} - {2}: tags [ {3} ]'.format(user_s, last_track.title,
+    m.msg = u'User {0} is listening to: {1} - {2}: tags [ {3} ]'.format(user_fm, last_track.title,
       last_track.artist.name, tags_string)
     return m
 
@@ -123,8 +123,11 @@ class PluginLastfm(BaseActionPlugin):
   def execute(self, ircMsg, userRole, *args, **kwargs):
     command_s = ircMsg.msg.split(' ')[1]
     try:
-      func = self.function_dict[command_s]
-      return func(ircMsg)
+        if command_s in self.function_dict:
+            func = self.function_dict[command_s]
+            return func(ircMsg)
+        else:
+            return self.get_user_track(ircMsg)
     except:
       logging.exception("Exception in last.fm command.")
       ircMsg.msg = "Incorrect last.fm command."

@@ -1,4 +1,5 @@
 venv/*
 *.pyc
-bot.db
 *~
+.idea/*
+db.sql3

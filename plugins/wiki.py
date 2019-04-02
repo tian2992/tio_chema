@@ -39,10 +39,13 @@ class Wiki(BaseActionPlugin):
       f = requests.get(url)
       data = f.text
       try:
-        soup = BeautifulSoup( data )
-        tag = soup.find_all('div', attrs={'class' : 'mw-content-ltr' } )
-        p = tag[0].p.text[:250]
-      except:
+        soup = BeautifulSoup(data, "html.parser")
+        basediv = soup.find('div', attrs={'class' : 'mw-parser-output' })
+        peetexts = [pees.text for pees in basediv.findChildren('p')]
+        basetext = " ".join(peetexts)
+        p = basetext[:350]
+      except Exception as e:
+        logging.exception("Wiki: An error ocurred")
         ircMsg.msg = "Wiki: An error ocurred."
         return ircMsg
 
@@ -51,4 +54,3 @@ class Wiki(BaseActionPlugin):
       m.user = user
       m.directed = True
       return m
-

@@ -6,6 +6,7 @@ TODO
 * User management.
 * Anti-flood technology.
 * User defined actions poll for deciding triggers (! vs @)
+* Maek moar detailed difference.
 
 Wishlist
 ========

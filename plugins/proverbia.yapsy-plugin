@@ -1,0 +1,9 @@
+[Core]
+Name = proverbia
+Module = proverbia
+
+[Documentation]
+Author = Dominio Publico
+Version = 0.1
+Website = http://www.proverbia.net/
+Description = Encuentra una cita aleatoria de un autor aleatorio

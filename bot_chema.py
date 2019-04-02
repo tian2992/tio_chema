@@ -14,6 +14,9 @@ from plugins.texttriggerplugin import TextTriggerPlugin
 
 from db_mgr import DatabaseManager
 
+# global constant
+RE_TYPE = re.compile('').__class__
+
 class ChemaBot(irc.IRCClient):
   """The main IRC bot class.
 
@@ -25,8 +28,6 @@ class ChemaBot(irc.IRCClient):
     self.nickname = nickname
     logging.basicConfig(level=logging.DEBUG)
     self.plugins_init()
-    #TODO: database location should be taken fron config file.
-    self.db_manager = DatabaseManager("bot.db")
 
   def plugins_init(self, is_reloading = False):
     if is_reloading:
@@ -60,20 +61,18 @@ class ChemaBot(irc.IRCClient):
       if (not pluginInfo.details.has_option("Core", "Disabled")):
         self.action_plugins[pluginInfo.name] = pluginInfo.plugin_object
 
-    logging.debug("Action plugins: {0}".format(self.action_plugins))
+
 
     for pluginInfo in self.pm.getPluginsOfCategory("TextActions"):
       if (not pluginInfo.details.has_option("Core", "Disabled")):
         self.text_trigger_plugins.append((pluginInfo.plugin_object.trigger, pluginInfo.plugin_object))
 
-    logging.debug("Regex plugins: {0}".format(self.text_trigger_plugins))
-
+      self.listPlugins()
 
   # Useful for debugging
   def listPlugins(self):
-      print 'Plugins:'
-      for item in self.plugins:
-          print item
+      logging.debug("Action plugins: {0}".format(self.action_plugins))
+      logging.debug("Regex plugins: {0}".format(self.text_trigger_plugins))
 
   def signedOn(self):
     """Called when bot has succesfully signed on to server."""
@@ -93,54 +92,68 @@ class ChemaBot(irc.IRCClient):
     else:
       self.msg(message.channel, message.render().encode('utf-8'))
 
+  def __executeCommand(self, plugin, ircm, result=None):
+      """Executes a plugin trigger with a given message obj."""
+      if plugin.synchronous:
+        d = defer.maybeDeferred(plugin.execute, ircm, None, regex_group=result)
+      else:
+        d = threads.deferToThread(plugin.execute, ircm, None, regex_group=result)
+      d.addCallback(self.emitMessage)
+
   def _parseAndExecute(self, ircm):
     """Recieves an IRCMessage, detects the command and triggers the appropiate plugin."""
 
+    command = False
     message = ircm.msg
+
+    ## Check for triggered plugins
     for (text_trigger, plugin) in self.text_trigger_plugins:
-      if isinstance(text_trigger, type(re.compile(''))):
+      if isinstance(text_trigger, RE_TYPE):
         result = text_trigger.findall(message)
       #TODO: specify the info sent to the trigger.
       else:
         #trigger.fire(message, *args, **kwargs)
         result = text_trigger.fire(ircm)
-
       if result:
-        d = threads.deferToThread(plugin.execute, ircm, None, result)
-        d.addCallback(self.emitMessage)
+        self.__executeCommand(plugin, ircm, result)
+        return
 
     ## Main Command trigger is commonly '!'
     trigger = self.factory.main_trigger
-    if message.startswith(trigger) or message.startswith(self.nickname):
-      word_list = message.split(' ')
-      if message.startswith(trigger):
-        command = word_list[0].lstrip(trigger)
-      elif message.startswith(self.nickname):
-        try:
-          command = word_list[1].strip()
-        except IndexError:
-          logging.warning('Invalid call: "{0}"'.format(ircm.render()))
-          return
 
-      ## TODO: Reload should be dependant on userRole
-      ## TODO: Localize
-      if command == "reload":
+    ## On Channel Calls, e.g. botname or triggered
+    if message.startswith(trigger) or message.startswith(self.nickname):
+      try:
+        word_list = ircm.tokens
+        if message.startswith(trigger):
+          command = word_list[0].lstrip(trigger)
+        elif message.startswith(self.nickname):
+          command = word_list[1].strip()
+      except IndexError:
+        logging.warning('Invalid call: "{0}"'.format(ircm.render()))
+        return
+    ## On PMs
+    if ircm.directed:
+        command = ircm.tokens[0] # Let's try be optimists
+
+    if not command:
+        # logging.info("no command found")
+        return
+
+    ## TODO: Reload should be dependant on userRole
+    ## TODO: Localize
+    if command == "reload":
         self.plugins_init(is_reloading=True)
         return
 
-      ## TODO: Consider sending the split word list.
-      try:
+    # So we fetch a plugin
+    try:
         plugin = self.action_plugins[command]
-      except KeyError:
-        logging.warning("Command {0} missing".format(command))
+    except KeyError:
+        logging.warning("Command {0} not found.".format(command))
         return
 
-      if plugin.synchronous:
-        d = defer.maybeDeferred(plugin.execute, ircm, None)
-      else:
-        d = threads.deferToThread(plugin.execute, ircm, None, connection = self.db_manager)
-      d.addCallback(self.emitMessage)
-      return
+    self.__executeCommand(plugin, ircm)
 
   def privmsg(self, user, channel, msg):
     """Gets called when the bot receives a message in a channel or via PM.
@@ -157,11 +170,12 @@ class ChemaBot(irc.IRCClient):
 
     """
 
-    message = IRCMessage(channel, msg, user)
+    directed = False
+    if channel == self.factory.nick:
+        directed = True
+    message = IRCMessage(channel, msg, user, directed=directed)
 
-    #TODO: add logging
-    #print message
-
+    # logging.info(message)
     #TODO: add channel trigger plugins (user defined actions)
 
     self._parseAndExecute(message)
@@ -175,9 +189,10 @@ class ChemaBotFactory(protocol.ClientFactory):
     self.channel = "#"+self.config['channel']
     self.filename = self.config['log_file']
     self.main_trigger = self.config['main_command_trigger']
+    self.nick = self.config['nickname']
 
   def buildProtocol(self, addr):
-    p = ChemaBot(self.config['nickname'])
+    p = ChemaBot(self.nick)
     p.factory = self
     return p
 
@@ -196,8 +211,7 @@ def main():
     else:
       # Load the configuration file
       config = ConfigObj(sys.argv[1])
-    # create factory protocol and application
-    print(sys.argv)
+    # Factory protocol and application
     bot_factory = ChemaBotFactory(config)
     observer = log.PythonLoggingObserver()
     observer.start()
@@ -213,5 +227,3 @@ def main():
 
 if __name__ == '__main__':
   main()
-
-main()

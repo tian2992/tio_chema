@@ -9,3 +9,4 @@ requests>=2
 twython
 duckduckgo
 hy
+beautifulsoup4

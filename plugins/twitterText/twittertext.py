@@ -57,14 +57,14 @@ class TwitterTextPlugin(TextTriggerPlugin):
 
     return conf_results
 
-  def execute(self, ircMsg, userRole, regex_groups):
+  def execute(self, ircMsg, userRole, regex_group):
     m = IRCMessage()
     m.channel = ircMsg.channel
-    regex_group = regex_groups[0]
+    r_group = regex_group[0]
 
-    status = self.api.get_status(regex_group[-1])
-    if regex_group[-2]:
-      author = regex_group[-2]
+    status = self.api.get_status(r_group[-1])
+    if r_group[-2]:
+      author = r_group[-2]
     else:
       author = status.author.screen_name
     m.msg = u"@{0}: {1}".format(author, status.text)
